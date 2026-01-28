@@ -3,8 +3,8 @@ name: Daily get Update
 on:
   workflow_dispatch:
   schedule:
-    # 22:30 UTC = 07:30 JST
-    - cron: '30 22 * * *'
+    # 07:20 UTC = 16:20 JST
+    - cron: '20 7 * * *'
 
 permissions:
   contents: write
