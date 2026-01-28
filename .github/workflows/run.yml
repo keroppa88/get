@@ -25,13 +25,13 @@ jobs:
           npm install playwright
           npx playwright install --with-deps chromium
 
-      - name: Run jpx.js
-        run: xvfb-run -a node jpx.js
+      - name: Run yen.js
+        run: xvfb-run -a node yen.js
 
       - name: Save results
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git add data/jpx.csv
-          git commit -m "Automated update: jpx.csv" || exit 0
+          git add data/yen.csv
+          git commit -m "Automated update: yen.csv" || exit 0
           git push
