@@ -28,6 +28,13 @@ jobs:
       - name: Run make_nikkeivi.js
         run: node make_nikkeivi.js
 
+      - name: Debug outputs
+        run: |
+          pwd
+          ls -la data
+          ls -la data/pricedata || true
+          git status --porcelain
+
       - name: Save results
         run: |
           git config --global user.email "action@github.com"
