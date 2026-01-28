@@ -3,7 +3,7 @@ name: Daily get Update
 on:
   workflow_dispatch:
   schedule:
-    # 22:30 UTC = 07:30 JST (日本時間 朝7時30分)
+    # 22:30 UTC = 07:30 JST
     - cron: '30 22 * * *'
 
 permissions:
@@ -25,13 +25,29 @@ jobs:
           npm install playwright
           npx playwright install --with-deps chromium
 
-      - name: Run nikkei2.js
-        run: xvfb-run -a node get_nikkeisemicon.js
+      - name: Run scripts (sequential, continue on error)
+        run: |
+          set +e
+
+          echo "=== get_nikkei225.js ==="
+          xvfb-run -a node get_nikkei225.js || echo "FAILED: get_nikkei225.js"
+
+          echo "=== get_jpx.js ==="
+          xvfb-run -a node get_jpx.js || echo "FAILED: get_jpx.js"
+
+          echo "=== get_nikkeisemicon.js ==="
+          xvfb-run -a node get_nikkeisemicon.js || echo "FAILED: get_nikkeisemicon.js"
+
+          echo "=== get_nikkeivi.js ==="
+          xvfb-run -a node get_nikkeivi.js || echo "FAILED: get_nikkeivi.js"
+
+          echo "=== get_yen.js ==="
+          xvfb-run -a node get_yen.js || echo "FAILED: get_yen.js"
 
       - name: Save results
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git add data/nikkeisemicon.csv
-          git commit -m "Automated update: nikkeisemicon.csv" || exit 0
+          git add data/*.csv
+          git commit -m "Automated update" || exit 0
           git push
