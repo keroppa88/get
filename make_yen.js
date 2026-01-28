@@ -1,134 +1,190 @@
-from pathlib import Path
-import re
-import csv
-from datetime import datetime
-from zoneinfo import ZoneInfo
+// make_yen.js
+// data/yen.csv から USD/JPY を抽出し、data/pricedata/ドル円.csv を例の形式で upsert する
 
-# ===== paths =====
-base = Path("data")
-src = base / "yen.csv"
-dst_dir = base / "pricedata"
-dst = dst_dir / "ドル円.csv"
-dst_dir.mkdir(parents=True, exist_ok=True)
+const fs = require("fs");
+const path = require("path");
 
-# ===== date (Asia/Tokyo) =====
-today = datetime.now(ZoneInfo("Asia/Tokyo")).date().isoformat()  # YYYY-MM-DD
+// ===== paths =====
+const base = path.join(process.cwd(), "data");
+const src = path.join(base, "yen.csv");
+const dstDir = path.join(base, "pricedata");
+const dst = path.join(dstDir, "ドル円.csv");
+fs.mkdirSync(dstDir, { recursive: true });
 
-def norm_line(s: str) -> str:
-    s = s.strip()
-    # 行全体が "..." で囲まれている想定
-    if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
-        s = s[1:-1]
-    s = s.replace("\u3000", " ")  # 全角スペース→半角
-    s = s.replace("\t", " ")
-    s = re.sub(r"\s+", " ", s).strip()
-    return s
+// ===== date (Asia/Tokyo) =====
+function tokyoTodayISO() {
+  const now = new Date();
+  // UTCミリ秒 = now - ローカルTZオフセット
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000;
+  // JST = UTC + 9h
+  const jst = new Date(utcMs + 9 * 60 * 60_000);
+  const y = jst.getUTCFullYear();
+  const m = String(jst.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(jst.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+const today = tokyoTodayISO();
 
-lines = [norm_line(l) for l in src.read_text(encoding="utf-8", errors="ignore").splitlines()]
-lines = [l for l in lines if l]
+// ===== helpers =====
+function normLine(s) {
+  s = s.trim();
+  if (s.length >= 2 && s[0] === '"' && s[s.length - 1] === '"') s = s.slice(1, -1);
+  // 全角スペース/タブ -> 半角スペース、連続空白を1つに
+  s = s.replace(/\u3000/g, " ").replace(/\t/g, " ").replace(/\s+/g, " ").trim();
+  return s;
+}
 
-# ===== extract USD/JPY =====
-pair = "USD/JPY"
-close_ = open_ = high_ = low_ = None
+// CSVを「行の配列(文字列)」として読む（今回のファイルは1行=1セルなのでこれで十分）
+function readLines(file) {
+  const text = fs.readFileSync(file, "utf8");
+  return text.split(/\r?\n/).map(normLine).filter(Boolean);
+}
 
-for i, line in enumerate(lines):
-    if line.startswith(pair):
-        # 2行下: "700 152.655" の 2つ目が終値
-        if i + 2 >= len(lines) or i + 3 >= len(lines):
-            raise ValueError("USD/JPY ブロックが途中で途切れています。")
+function parseCSV(file) {
+  const text = fs.readFileSync(file, "utf8");
+  const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+  return lines.map((line) => {
+    // 超簡易CSV: ダブルクォート対応、カンマ区切り
+    // 例: Date,Open,... / 2026-01-27,5842,...
+    // ※今回のドル円.csvはこの程度で足りる前提
+    const out = [];
+    let cur = "";
+    let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        inQ = !inQ;
+        continue;
+      }
+      if (ch === "," && !inQ) {
+        out.push(cur);
+        cur = "";
+      } else {
+        cur += ch;
+      }
+    }
+    out.push(cur);
+    return out.map((x) => x.trim());
+  });
+}
 
-        p2 = lines[i + 2].split(" ")
-        if len(p2) < 2:
-            raise ValueError(f"終値行が想定外: {lines[i+2]}")
-        close_ = p2[1]
+function writeCSV(file, rows) {
+  const text = rows
+    .map((row) =>
+      row
+        .map((cell) => {
+          const s = String(cell ?? "");
+          // カンマ/クォート/改行があればクォート
+          if (/[",\r\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+          return s;
+        })
+        .join(",")
+    )
+    .join("\n");
+  // UTF-8 BOM 付きで保存（Windowsメモ帳対策）
+  fs.writeFileSync(file, "\uFEFF" + text, "utf8");
+}
 
-        # 3行下: "(19:39) +0.465 13,475 152.350 153.080 152.250 130.00"
-        p3 = lines[i + 3].split(" ")
-        if len(p3) < 6:
-            raise ValueError(f"OHLC行が想定外: {lines[i+3]}")
-        open_ = p3[3]
-        high_ = p3[4]
-        low_  = p3[5]
-        break
+// ===== extract USD/JPY =====
+const lines = readLines(src);
+const pair = "USD/JPY";
 
-if close_ is None:
-    raise ValueError("yen.csv 内に USD/JPY が見つかりませんでした。")
+let open_ = null, high_ = null, low_ = null, close_ = null;
 
-# ===== load existing dst (if any) and upsert =====
-default_header = ["Date","Open","High","Low","Close","Volume","TradingValue","UpLimit","UnderLimit"]
+for (let i = 0; i < lines.length; i++) {
+  if (lines[i].startsWith(pair)) {
+    if (i + 2 >= lines.length || i + 3 >= lines.length) {
+      throw new Error("USD/JPY ブロックが途中で途切れています。");
+    }
 
-rows = []
-header = None
+    // 2行下: "700 152.655" → 終値=2つ目
+    const p2 = lines[i + 2].split(" ");
+    if (p2.length < 2) throw new Error(`終値行が想定外: ${lines[i + 2]}`);
+    close_ = p2[1];
 
-if dst.exists():
-    with dst.open("r", encoding="utf-8-sig", newline="") as f:
-        r = csv.reader(f)
-        header = next(r, None)
-        if header:
-            for row in r:
-                if not row:
-                    continue
-                # 行が短い場合は右側を埋める
-                if len(row) < len(header):
-                    row = row + [""] * (len(header) - len(row))
-                rows.append(row)
+    // 3行下: "(19:39) +0.465 13,475 152.350 153.080 152.250 130.00"
+    const p3 = lines[i + 3].split(" ");
+    if (p3.length < 6) throw new Error(`OHLC行が想定外: ${lines[i + 3]}`);
+    open_ = p3[3];
+    high_ = p3[4];
+    low_ = p3[5];
 
-# ヘッダ決定：
-# - 既存があればそれを尊重
-# - ない場合は “例の形式” の9列ヘッダで新規作成
-if not header:
-    header = default_header
+    break;
+  }
+}
 
-# Date列位置（既存ヘッダが違っても対応）
-try:
-    date_idx = header.index("Date")
-except ValueError:
-    # 想定外なら先頭をDate扱いにする
-    date_idx = 0
+if (close_ == null) throw new Error("yen.csv 内に USD/JPY が見つかりませんでした。");
 
-# 必須列位置（なければ追加しない＝既存形式優先）
-def col_idx(name: str):
-    try:
-        return header.index(name)
-    except ValueError:
-        return None
+// ===== upsert into ドル円.csv (例の9列フォーマット) =====
+const defaultHeader = [
+  "Date",
+  "Open",
+  "High",
+  "Low",
+  "Close",
+  "Volume",
+  "TradingValue",
+  "UpLimit",
+  "UnderLimit",
+];
 
-idx_open = col_idx("Open")
-idx_high = col_idx("High")
-idx_low  = col_idx("Low")
-idx_close= col_idx("Close")
+let rows;
+if (fs.existsSync(dst)) {
+  rows = parseCSV(dst);
+} else {
+  rows = [defaultHeader];
+}
 
-# 今日の日付行を探す
-found = False
-for row in rows:
-    if row[date_idx] == today:
-        if idx_open is not None:  row[idx_open]  = open_
-        if idx_high is not None:  row[idx_high]  = high_
-        if idx_low  is not None:  row[idx_low]   = low_
-        if idx_close is not None: row[idx_close] = close_
-        found = True
-        break
+let header = rows[0];
+if (!header || header.length === 0) {
+  header = defaultHeader;
+  rows = [header];
+}
 
-# なければ最終行に追加（他列は 0 埋め）
-if not found:
-    new_row = [""] * len(header)
-    new_row[date_idx] = today
-    if idx_open is not None:  new_row[idx_open]  = open_
-    if idx_high is not None:  new_row[idx_high]  = high_
-    if idx_low  is not None:  new_row[idx_low]   = low_
-    if idx_close is not None: new_row[idx_close] = close_
+// ヘッダが想定外でも Date/Open/High/Low/Close がある前提で位置を探す
+function idx(name) {
+  const k = header.indexOf(name);
+  return k >= 0 ? k : null;
+}
+const iDate = idx("Date") ?? 0;
+const iOpen = idx("Open");
+const iHigh = idx("High");
+const iLow = idx("Low");
+const iClose = idx("Close");
 
-    # 例の形式なら残りを0で埋める（空欄でも良いならここ消してOK）
-    for j, name in enumerate(header):
-        if name in ("Volume","TradingValue","UpLimit","UnderLimit") and not new_row[j]:
-            new_row[j] = "0"
+// 今日の行を探す
+let found = false;
+for (let r = 1; r < rows.length; r++) {
+  const row = rows[r];
+  if ((row[iDate] ?? "") === today) {
+    if (iOpen != null) row[iOpen] = open_;
+    if (iHigh != null) row[iHigh] = high_;
+    if (iLow != null) row[iLow] = low_;
+    if (iClose != null) row[iClose] = close_;
+    found = true;
+    break;
+  }
+}
 
-    rows.append(new_row)
+// なければ末尾追加（残りは0）
+if (!found) {
+  const newRow = Array(header.length).fill("");
+  newRow[iDate] = today;
+  if (iOpen != null) newRow[iOpen] = open_;
+  if (iHigh != null) newRow[iHigh] = high_;
+  if (iLow != null) newRow[iLow] = low_;
+  if (iClose != null) newRow[iClose] = close_;
 
-# ===== write back =====
-with dst.open("w", encoding="utf-8-sig", newline="") as f:
-    w = csv.writer(f)
-    w.writerow(header)
-    w.writerows(rows)
+  for (let j = 0; j < header.length; j++) {
+    if (["Volume", "TradingValue", "UpLimit", "UnderLimit"].includes(header[j]) && !newRow[j]) {
+      newRow[j] = "0";
+    }
+  }
+  rows.push(newRow);
+}
 
-print(f"saved: {dst}  ({today}  O={open_} H={high_} L={low_} C={close_})")
+// 保存
+writeCSV(dst, rows);
+
+console.log(`saved: ${dst}`);
+console.log(`${today}  O=${open_} H=${high_} L=${low_} C=${close_}`);
