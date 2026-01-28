@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const INPUT = 'nikkei225.csv';
+const INPUT = path.join('data', 'nikkei225.csv');
 const OUT_DIR = path.join('data', 'PriceData');
 
 function ensureDir(p) {
