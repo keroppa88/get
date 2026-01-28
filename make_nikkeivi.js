@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const INPUT = 'nikkeivi.csv'; // 例: nikkeivi.csv をリポジトリ直下に置く
+const INPUT = path.join('data', 'nikkeivi.csv');
 const OUT_DIR = path.join('data', 'PriceData');
 
 function ensureDir(p) {
