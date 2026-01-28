@@ -1,4 +1,4 @@
-// ●日経平均
+// ●日経内需50
 // npm i playwright
 
 const { chromium } = require('playwright');
