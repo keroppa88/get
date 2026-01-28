@@ -26,12 +26,12 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Run nikkei2.js
-        run: xvfb-run -a node make_jpx.js
+        run: xvfb-run -a node get_nikkeisemicon.js
 
       - name: Save results
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git add data/jpx.csv
-          git commit -m "Automated update: jpx.csv" || exit 0
+          git add data/nikkeisemicon.csv
+          git commit -m "Automated update: nikkeisemicon.csv" || exit 0
           git push
