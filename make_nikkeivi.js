@@ -66,24 +66,41 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
   const allText = lines.join('\n');
   const dateISO = extractDateISO(allText);
 
-  // 銘柄名：最初に出てくる "日経平均ボラティリティー・インデックス" を採用
-  // （必要ならここを一般化するが、あなたのルールでは固定っぽいのでこのまま）
-  const targetName = '日経平均ボラティリティー・インデックス';
-  const nameIdx = lines.findIndex(s => s === targetName);
+// 銘柄名・終値・日付を「構造」で特定する
+let targetName = null;
+let close = null;
 
-  if (nameIdx === -1) {
-    throw new Error(`銘柄名が見つかりません: ${targetName}`);
-  }
+// 例: "+0.56% +0.19 2026.01.28(15:50)" の日付を拾う
+const dateLineRe = /(20\d{2})\.(\d{2})\.(\d{2})\s*\(/;
 
-  // 終値：銘柄名行の下にある「数字のみ」行
-  let close = null;
-  for (let i = nameIdx + 1; i < Math.min(lines.length, nameIdx + 10); i++) {
-    if (isNumberOnlyLine(lines[i])) {
-      close = toNumStr(lines[i]);
-      break;
-    }
-  }
-  if (!close) throw new Error('終値（数字のみ行）が見つかりません');
+let dateISO = null;
+
+for (let i = 0; i < lines.length - 2; i++) {
+  const nameCandidate = lines[i].trim();
+  const closeCandidate = lines[i + 1]?.trim();
+  const infoCandidate = lines[i + 2]?.trim();
+
+  if (!nameCandidate) continue;
+  if (isNumberOnlyLine(nameCandidate)) continue; // 銘柄名が数字は除外
+  if (!isNumberOnlyLine(closeCandidate)) continue; // 次行が終値(数字のみ)でないなら除外
+
+  const m = infoCandidate.match(dateLineRe);
+  if (!m) continue; // 3行目に日付が無いなら除外
+
+  // ここで確定（最初に成立したブロックを採用）
+  targetName = nameCandidate;
+  close = toNumStr(closeCandidate);
+  dateISO = `${m[1]}-${m[2]}-${m[3]}`;
+  break;
+}
+
+if (!targetName || !close) {
+  throw new Error('銘柄名/終値のブロック（[銘柄名][終値(数字)][日付行]）が見つかりません');
+}
+
+// dateISO が取れなかった場合の保険（基本ここには来ない）
+if (!dateISO) dateISO = new Date().toISOString().slice(0, 10);
+
 
   // 始値/高値/安値：行頭がそれぞれの行。タブ区切りで "始値\t34.17\t09:00" 形式想定
   function findFirstValue(prefix) {
