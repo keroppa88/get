@@ -25,8 +25,15 @@ jobs:
       - name: Run make_nikkei225.js
         run: node make_nikkei225.js
 
+      - name: Run make_nikkeivi.js
+        run: node make_nikkeivi.js
+        
+      - name: Run make_nikkeisemicon.js
+        run: node make_nikkeisemicon.js
 
-
+      - name: Run make_yen.js
+        run: node make_yen.js
+        
       - name: Debug outputs
         run: |
           pwd
