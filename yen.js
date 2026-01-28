@@ -1,5 +1,6 @@
 // ●くりっく365
 // npm i playwright
+//月：午前7時10分、火～金曜日：午前7時55分。～価格取得時の価格
 
 const { chromium } = require('playwright');
 const fs = require('fs');
