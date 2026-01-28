@@ -3,29 +3,34 @@
 
 const { chromium } = require('playwright');
 const fs = require('fs');
+const path = require('path');
 
 //●サイトアドレス
 (async () => {
-  const url = 'https://indexes.nikkei.co.jp/nkave/index?type=index'; 
+  const url = 'https://indexes.nikkei.co.jp/nkave/index?type=index';
 
   const browser = await chromium.launch({ headless: false });
   const page = await browser.newPage();
-
-  // ページを開く（軽めの待機設定）
+  
+// ページを開く（軽めの待機設定）
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-
-  // 数秒だけ待つ（描画・JS実行待機）
-  await page.waitForTimeout(3000); // ← 必要に応じて秒数調整
-
-  // ページ全体の表示テキストを取得
+  
+// 数秒だけ待つ（描画・JS実行待機）← 必要に応じて秒数調整
+  await page.waitForTimeout(3000);
+  
+// ページ全体の表示テキストを取得
   const text = await page.innerText('body');
 
-  // CSV保存（行ごと）●ファイルネーム
-  const d = new Date();
-  const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-  const filename = `all_nikkeiindex_nikkei.csv`;
+  // 保存先ディレクトリ & ファイル
+  const dataDir = path.join(__dirname, 'data');
+  const filename = path.join(dataDir, 'nikkei.csv');
 
-  // 改行ごとに1行として書き込む
+  // dataフォルダが無ければ作成
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir);
+  }
+
+  // CSV生成　改行ごとに1行として書き込む
   const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
   let csvContent = '\uFEFF'; // BOM
   for (const line of lines) {
