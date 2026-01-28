@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const INPUT = 'JPX.csv';
-const OUT_DIR = path.join('Data', 'PriceData');
+const INPUT = path.join('data', 'jpx.csv');
+const OUT_DIR = path.join('data', 'pricedata');
 
 if (!fs.existsSync(OUT_DIR)) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
