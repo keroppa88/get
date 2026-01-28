@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const INPUT = path.join('data', 'nikkeivi.csv');
-const OUT_DIR = path.join('data', 'PriceData');
+const OUT_DIR = path.join('data', 'pricedata');
 
 function ensureDir(p) {
   if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
