@@ -26,12 +26,12 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Run nikkei2.js
-        run: xvfb-run -a node get_nikkeivi.js
+        run: xvfb-run -a node get_nikkei225.js
 
       - name: Save results
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git add data/nikkeivi.csv
-          git commit -m "Automated update: nikkeivi.csv" || exit 0
+          git add data/nikkei225.csv
+          git commit -m "Automated update: nikkei225.csv" || exit 0
           git push
