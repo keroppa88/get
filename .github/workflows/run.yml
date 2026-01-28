@@ -26,7 +26,7 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Run nikkei.js
-        run: node nikkei.js
+        run: xvfb-run -a node nikkei.js
 
       - name: Save results
         run: |
