@@ -25,6 +25,23 @@ function sanitizeFilename(name) {
   return name.replace(/[\\\/:*?"<>|]/g, '_').trim();
 }
 
+// 最終行の日付だけを取得（ファイル末尾のみ読む）
+function getLastDate(filePath) {
+  const fd = fs.openSync(filePath, 'r');
+  try {
+    const stat = fs.fstatSync(fd);
+    const readSize = Math.min(stat.size, 128);
+    const buf = Buffer.alloc(readSize);
+    fs.readSync(fd, buf, 0, readSize, stat.size - readSize);
+    const tail = buf.toString('utf8');
+    const lines = tail.split(/\r?\n/).filter(Boolean);
+    const lastLine = lines[lines.length - 1];
+    return lastLine ? lastLine.split(',')[0] : null;
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+ 
 function appendIfNotExists(outPath, dateISO, open, high, low, close) {
   const header = 'Date,Open,High,Low,Close,Volume,TradingValue,UpLimit,LowLimit';
   const newLine = `${dateISO},${open},${high},${low},${close},,,,,`;
@@ -34,12 +51,12 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
     return;
   }
 
-  const existing = fs.readFileSync(outPath, 'utf8').trimEnd();
-  const rows = existing.split(/\r?\n/);
+  // 最終行の日付だけ読んで重複チェック
+  const lastDate = getLastDate(outPath);
+  if (lastDate === dateISO) return;
 
-  if (rows.some(r => r.startsWith(dateISO + ','))) return;
-
-  fs.writeFileSync(outPath, existing + '\n' + newLine + '\n', 'utf8');
+  // 重複なし → 末尾に追記のみ
+  fs.appendFileSync(outPath, `${newLine}\n`, 'utf8');
 }
 
 (function main() {
