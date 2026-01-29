@@ -152,36 +152,29 @@ const iHigh = idx("High");
 const iLow = idx("Low");
 const iClose = idx("Close");
 
-// 今日の行を探す
-let found = false;
-for (let r = 1; r < rows.length; r++) {
-  const row = rows[r];
-  if ((row[iDate] ?? "") === today) {
-    if (iOpen != null) row[iOpen] = open_;
-    if (iHigh != null) row[iHigh] = high_;
-    if (iLow != null) row[iLow] = low_;
-    if (iClose != null) row[iClose] = close_;
-    found = true;
-    break;
-  }
+// 最終行の日付と比較し、同じならスキップ、違うなら追記
+const lastRow = rows.length > 1 ? rows[rows.length - 1] : null;
+const lastDate = lastRow ? (lastRow[iDate] ?? "") : "";
+
+if (lastDate === today) {
+  console.log(`skip: ${dst} (already has ${today})`);
+  process.exit(0);
 }
 
-// なければ末尾追加（残りは0）
-if (!found) {
-  const newRow = Array(header.length).fill("");
-  newRow[iDate] = today;
-  if (iOpen != null) newRow[iOpen] = open_;
-  if (iHigh != null) newRow[iHigh] = high_;
-  if (iLow != null) newRow[iLow] = low_;
-  if (iClose != null) newRow[iClose] = close_;
+// 末尾追加
+const newRow = Array(header.length).fill("");
+newRow[iDate] = today;
+if (iOpen != null) newRow[iOpen] = open_;
+if (iHigh != null) newRow[iHigh] = high_;
+if (iLow != null) newRow[iLow] = low_;
+if (iClose != null) newRow[iClose] = close_;
 
-  for (let j = 0; j < header.length; j++) {
-    if (["Volume", "TradingValue", "UpLimit", "UnderLimit"].includes(header[j]) && !newRow[j]) {
-      newRow[j] = "0";
-    }
+for (let j = 0; j < header.length; j++) {
+  if (["Volume", "TradingValue", "UpLimit", "UnderLimit"].includes(header[j]) && !newRow[j]) {
+    newRow[j] = "0";
   }
-  rows.push(newRow);
 }
+rows.push(newRow);
 
 // 保存
 writeCSV(dst, rows);
