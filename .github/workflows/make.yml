@@ -1,5 +1,5 @@
 name: Daily make Update
-
+# get.ymlが動作し終わったら動作する設定。
 on:
   workflow_dispatch:
   workflow_run:
@@ -19,10 +19,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
-      - name: Install dependencies
-        run: npm install
-        
+              
       - name: Run make scripts (continue on error)
         run: |
           set +e
