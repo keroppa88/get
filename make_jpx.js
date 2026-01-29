@@ -8,11 +8,24 @@ if (!fs.existsSync(OUT_DIR)) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
 }
 
-const now = new Date();
-const jst = new Date(now.getTime() + (9 * 60 + now.getTimezoneOffset()) * 60000);
-const today = jst.toISOString().slice(0, 10);
-
 const lines = fs.readFileSync(INPUT, 'utf8').split(/\r?\n/);
+
+// jpx.csv から「データ更新日時」行を探して日付を抽出
+let dataDate = null;
+for (const line of lines) {
+  const row = line.replace(/^"|"$/g, '');
+  // 「データ更新日時	2026/01/29 16:55」のような行を探す
+  const match = row.match(/^データ更新日時\s+(\d{4})\/(\d{2})\/(\d{2})/);
+  if (match) {
+    dataDate = `${match[1]}-${match[2]}-${match[3]}`;
+    break;
+  }
+}
+
+if (!dataDate) {
+  console.error('データ更新日時が見つかりません');
+  process.exit(1);
+}
 
 let readData = false;
 
@@ -49,7 +62,7 @@ for (const line of lines) {
   const outPath = path.join(OUT_DIR, `${safeName}.csv`);
 
   const newLine =
-`${today},${open},${high},${low},${close},,,,,`;
+`${dataDate},${open},${high},${low},${close},,,,,`;
 
   // ファイルが無い → 新規作成
   if (!fs.existsSync(outPath)) {
@@ -65,10 +78,11 @@ ${newLine}
   const existing = fs.readFileSync(outPath, 'utf8').trimEnd();
   const rows = existing.split(/\r?\n/);
 
-  // 既に当日分がある → 何もしない
-  const hasToday = rows.some(r => r.startsWith(today + ','));
-  if (hasToday) continue;
+  // 最終行の日付を取得して重複チェック
+  const lastRow = rows[rows.length - 1];
+  const lastDate = lastRow.split(',')[0];
+  if (lastDate === dataDate) continue;
 
-  // 無い → 末尾に追記
+  // 重複なし → 末尾に追記
   fs.writeFileSync(outPath, existing + '\n' + newLine, 'utf8');
 }
