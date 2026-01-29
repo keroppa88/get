@@ -44,7 +44,7 @@ function getLastDate(filePath) {
  
 function appendIfNotExists(outPath, dateISO, open, high, low, close) {
   const header = 'Date,Open,High,Low,Close,Volume,TradingValue,UpLimit,LowLimit';
-  const newLine = `${dateISO},${open},${high},${low},${close},,,,,`;
+  const newLine = `${dateISO},${open},${high},${low},${close},,,,`;
 
   if (!fs.existsSync(outPath)) {
     fs.writeFileSync(outPath, `${header}\n${newLine}\n`, 'utf8');
