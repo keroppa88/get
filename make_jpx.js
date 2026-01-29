@@ -3,9 +3,27 @@ const path = require('path');
 
 const INPUT = path.join('data', 'jpx.csv');
 const OUT_DIR = path.join('data', 'pricedata');
+const HEADER = 'Date,Open,High,Low,Close,Volume,TradingValue,UpLimit,LowLimit';
 
 if (!fs.existsSync(OUT_DIR)) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
+}
+
+// 最終行の日付だけを取得（ファイル末尾のみ読む）
+function getLastDate(filePath) {
+  const fd = fs.openSync(filePath, 'r');
+  try {
+    const stat = fs.fstatSync(fd);
+    const readSize = Math.min(stat.size, 128);
+    const buf = Buffer.alloc(readSize);
+    fs.readSync(fd, buf, 0, readSize, stat.size - readSize);
+    const tail = buf.toString('utf8');
+    const lines = tail.split(/\r?\n/).filter(Boolean);
+    const lastLine = lines[lines.length - 1];
+    return lastLine ? lastLine.split(',')[0] : null;
+  } finally {
+    fs.closeSync(fd);
+  }
 }
 
 const lines = fs.readFileSync(INPUT, 'utf8').split(/\r?\n/);
@@ -66,23 +84,14 @@ for (const line of lines) {
 
   // ファイルが無い → 新規作成
   if (!fs.existsSync(outPath)) {
-    const header =
-`Date,Open,High,Low,Close,Volume,TradingValue,UpLimit,LowLimit
-${newLine}
-`;
-    fs.writeFileSync(outPath, header, 'utf8');
+    fs.writeFileSync(outPath, `${HEADER}\n${newLine}\n`, 'utf8');
     continue;
   }
 
-  // 既存ファイル確認
-  const existing = fs.readFileSync(outPath, 'utf8').trimEnd();
-  const rows = existing.split(/\r?\n/);
-
-  // 最終行の日付を取得して重複チェック
-  const lastRow = rows[rows.length - 1];
-  const lastDate = lastRow.split(',')[0];
+  // 最終行の日付だけ読んで重複チェック
+  const lastDate = getLastDate(outPath);
   if (lastDate === dataDate) continue;
 
-  // 重複なし → 末尾に追記
-  fs.writeFileSync(outPath, existing + '\n' + newLine, 'utf8');
+  // 重複なし → 末尾に追記のみ
+  fs.appendFileSync(outPath, `${newLine}\n`, 'utf8');
 }
