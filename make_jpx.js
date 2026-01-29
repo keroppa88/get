@@ -8,7 +8,9 @@ if (!fs.existsSync(OUT_DIR)) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
 }
 
-const today = new Date().toISOString().slice(0, 10);
+const now = new Date();
+const jst = new Date(now.getTime() + (9 * 60 + now.getTimezoneOffset()) * 60000);
+const today = jst.toISOString().slice(0, 10);
 
 const lines = fs.readFileSync(INPUT, 'utf8').split(/\r?\n/);
 
