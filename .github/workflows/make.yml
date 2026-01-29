@@ -54,11 +54,11 @@ jobs:
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
           git add data/pricedata
-          git commit -m "Automated update: pricedata" || exit 0
 
-          # 変更があるときだけ push
-          if [ -n "$(git status --porcelain)" ]; then
-            git push
+          # 変更があるときだけ commit & push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
           else
-            echo "No changes to push"
+            git commit -m "Automated update: pricedata"
+            git push
           fi
