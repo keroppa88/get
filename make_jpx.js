@@ -80,7 +80,7 @@ for (const line of lines) {
   const outPath = path.join(OUT_DIR, `${safeName}.csv`);
 
   const newLine =
-`${dataDate},${open},${high},${low},${close},,,,,`;
+`${dataDate},${open},${high},${low},${close},,,,`;
 
   // ファイルが無い → 新規作成
   if (!fs.existsSync(outPath)) {
