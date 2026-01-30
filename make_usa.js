@@ -58,6 +58,10 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
   fs.appendFileSync(outPath, `${newLine}\n`, 'utf8');
 }
 
+function sanitizeFilename(name) {
+  return name.replace(/[\\\/:*?"<>|]/g, '_').trim();
+}
+
 (function main() {
   ensureDir(OUT_DIR);
 
@@ -65,20 +69,19 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
   const rows = rawLines.map(parseCSVLine);
 
   // 日付取得 (行3の更新日時: "2026/01/29 16:00:00")
-  let dateISO = null;
+  let defaultDateISO = null;
   for (const row of rows) {
     if (row[0] && /^\d{4}\/\d{2}\/\d{2}/.test(row[0])) {
       const m = row[0].match(/^(\d{4})\/(\d{2})\/(\d{2})/);
       if (m) {
-        dateISO = `${m[1]}-${m[2]}-${m[3]}`;
+        defaultDateISO = `${m[1]}-${m[2]}-${m[3]}`;
         break;
       }
     }
   }
-  if (!dateISO) throw new Error('日付を取得できません');
+  if (!defaultDateISO) throw new Error('日付を取得できません');
 
-  // 指数データ抽出用
-  // データ順: 列4=終値, 列5=始値, 列6=高値, 列7=安値
+  // 指数データ（古い形式: 列2=コード, 列4=終値, 列5=始値, 列6=高値, 列7=安値）
   const indices = [
     { file: 'NYダウ.csv', code: 'INDEXDJX:.DJI', name: 'NYダウ' },
     { file: 'S&P500.csv', code: 'INDEXSP:.INX', name: 'S&P500' },
@@ -105,12 +108,80 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
     }
 
     const outPath = path.join(OUT_DIR, idx.file);
+    appendIfNotExists(outPath, defaultDateISO, open, high, low, close);
+    console.log('saved:', outPath, 'date:', defaultDateISO);
+  }
+
+  // 個別銘柄データ（新形式: 列0=コード, 列1=銘柄, 列2=始値, 列3=高値, 列4=安値, 列5=終値, 列7=取引日）
+  const stocks = [
+    { file: 'アップル.csv', code: 'NASDAQ:AAPL', name: 'アップル' },
+    { file: 'マイクロソフト.csv', code: 'NASDAQ:MSFT', name: 'マイクロソフト' },
+    { file: 'グーグル.csv', code: 'NASDAQ:GOOG', name: 'グーグル' },
+    { file: 'アマゾン.csv', code: 'NASDAQ:AMZN', name: 'アマゾン' },
+    { file: 'エヌビディア.csv', code: 'NASDAQ:NVDA', name: 'エヌビディア' },
+    { file: 'メタ.csv', code: 'NASDAQ:META', name: 'メタ' },
+    { file: 'テスラ.csv', code: 'NASDAQ:TSLA', name: 'テスラ' },
+    { file: 'アーク.csv', code: 'BATS:ARKK', name: 'アーク' },
+    { file: 'マイクロン.csv', code: 'NASDAQ:MU', name: 'マイクロン' },
+    { file: 'AMD.csv', code: 'NASDAQ:AMD', name: 'AMD' },
+    { file: 'インテル.csv', code: 'NASDAQ:INTC', name: 'インテル' },
+    { file: 'アーム.csv', code: 'NASDAQ:ARM', name: 'アーム' },
+    { file: 'ブロードコム.csv', code: 'NASDAQ:AVGO', name: 'ブロードコム' },
+    { file: 'クアルコム.csv', code: 'NASDAQ:QCOM', name: 'クアルコム' },
+    { file: 'ASML(蘭).csv', code: 'AMS:ASML', name: 'ASML(蘭)' },
+    { file: 'TSMC(台).csv', code: 'TPE:2330', name: 'TSMC(台)' },
+    { file: 'サムスン(韓).csv', code: 'KRX:005930', name: 'サムスン(韓)' },
+    { file: 'テンセント(中).csv', code: 'HKG:0700', name: 'テンセント(中)' },
+    { file: 'アリババ(中).csv', code: 'BCBA:BABA', name: 'アリババ(中)' },
+    { file: 'パランディア.csv', code: 'NASDAQ:PLTR', name: 'パランディア' },
+    { file: 'SAP(独).csv', code: 'ETR:SAP', name: 'SAP(独)' },
+    { file: 'VW(独).csv', code: 'ETR:VOW3', name: 'VW(独)' },
+    { file: 'BASF(独).csv', code: 'ETR:BAS', name: 'BASF(独)' },
+    { file: 'バークシャーH.csv', code: 'NYSE:BRK.B', name: 'バークシャーH' },
+    { file: 'JPモルガン.csv', code: 'NYSE:JPM', name: 'JPモルガン' },
+    { file: 'GS.csv', code: 'NYSE:GS', name: 'GS' },
+    { file: 'HSBC(英).csv', code: 'LON:HSBA', name: 'HSBC(英)' },
+    { file: 'BNPパリバ(仏).csv', code: 'EPA:BNP', name: 'BNPパリバ(仏)' },
+    { file: 'LVMH(仏).csv', code: 'EPA:MC', name: 'LVMH(仏)' },
+    { file: 'ウォルマート.csv', code: 'NASDAQ:WMT', name: 'ウォルマート' },
+    { file: 'マクドナルド.csv', code: 'NYSE:MCD', name: 'マクドナルド' },
+  ];
+
+  for (const stock of stocks) {
+    // 新形式データを検索（列0=コード）
+    const row = rows.find(r => r[0] === stock.code);
+    if (!row) {
+      console.log(`${stock.name} (${stock.code}) が見つかりません`);
+      continue;
+    }
+
+    // 列2=始値, 列3=高値, 列4=安値, 列5=終値, 列7=取引日
+    const open = row[2];
+    const high = row[3];
+    const low = row[4];
+    const close = row[5];
+    const tradingDate = row[7]; // "2026/01/29"
+
+    if (!close || !open || !high || !low) {
+      console.log(`${stock.name}: データ不足 open=${open}, high=${high}, low=${low}, close=${close}`);
+      continue;
+    }
+
+    // 取引日から日付を取得
+    let dateISO = defaultDateISO;
+    if (tradingDate && /^\d{4}\/\d{2}\/\d{2}/.test(tradingDate)) {
+      const m = tradingDate.match(/^(\d{4})\/(\d{2})\/(\d{2})/);
+      if (m) {
+        dateISO = `${m[1]}-${m[2]}-${m[3]}`;
+      }
+    }
+
+    const outPath = path.join(OUT_DIR, stock.file);
     appendIfNotExists(outPath, dateISO, open, high, low, close);
     console.log('saved:', outPath, 'date:', dateISO);
   }
 
-  // 008.csv: 時価総額の隣にある数値 (21.5296)
-  // 行10: ["","","","","","時価総額","21.5296",...]
+  // M7時価総額
   let marketCapValue = null;
   for (const row of rows) {
     if (row[5] === '時価総額') {
@@ -121,8 +192,8 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
 
   if (marketCapValue) {
     const outPath = path.join(OUT_DIR, 'M7時価総額.csv');
-    appendIfNotExists(outPath, dateISO, marketCapValue, marketCapValue, marketCapValue, marketCapValue);
-    console.log('saved:', outPath, 'date:', dateISO);
+    appendIfNotExists(outPath, defaultDateISO, marketCapValue, marketCapValue, marketCapValue, marketCapValue);
+    console.log('saved:', outPath, 'date:', defaultDateISO);
   } else {
     console.log('M7時価総額の値が見つかりません');
   }
