@@ -1,5 +1,6 @@
 // ●米国googleスプレッドシート
 // npm i playwright
+// 内部構造で表取得。
 
 const { chromium } = require('playwright');
 const fs = require('fs');
