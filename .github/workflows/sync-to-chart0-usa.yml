@@ -10,6 +10,38 @@ on:
       - 'data/pricedata/ラッセル2000.csv'
       - 'data/pricedata/SOX指数.csv'
       - 'data/pricedata/M7時価総額.csv'
+      - 'data/pricedata/アップル.csv'
+      - 'data/pricedata/マイクロソフト.csv'
+      - 'data/pricedata/グーグル.csv'
+      - 'data/pricedata/アマゾン.csv'
+      - 'data/pricedata/エヌビディア.csv'
+      - 'data/pricedata/メタ.csv'
+      - 'data/pricedata/テスラ.csv'
+      - 'data/pricedata/アーク.csv'
+      - 'data/pricedata/マイクロン.csv'
+      - 'data/pricedata/AMD.csv'
+      - 'data/pricedata/インテル.csv'
+      - 'data/pricedata/アーム.csv'
+      - 'data/pricedata/ブロードコム.csv'
+      - 'data/pricedata/クアルコム.csv'
+      - 'data/pricedata/ASML(蘭).csv'
+      - 'data/pricedata/TSMC(台).csv'
+      - 'data/pricedata/サムスン(韓).csv'
+      - 'data/pricedata/テンセント(中).csv'
+      - 'data/pricedata/アリババ(中).csv'
+      - 'data/pricedata/パランディア.csv'
+      - 'data/pricedata/SAP(独).csv'
+      - 'data/pricedata/VW(独).csv'
+      - 'data/pricedata/BASF(独).csv'
+      - 'data/pricedata/バークシャーH.csv'
+      - 'data/pricedata/JPモルガン.csv'
+      - 'data/pricedata/GS.csv'
+      - 'data/pricedata/HSBC(英).csv'
+      - 'data/pricedata/BNPパリバ(仏).csv'
+      - 'data/pricedata/LVMH(仏).csv'
+      - 'data/pricedata/ウォルマート.csv'
+      - 'data/pricedata/マクドナルド.csv'
+
   workflow_dispatch:
 
 jobs:
@@ -31,6 +63,37 @@ jobs:
           cp -f "data/pricedata/ラッセル2000.csv" chart0/data/054.csv
           cp -f "data/pricedata/SOX指数.csv" chart0/data/055.csv
           cp -f "data/pricedata/M7時価総額.csv" chart0/data/056.csv
+          cp -f "data/pricedata/アップル.csv" chart0/data/101.csv
+          cp -f "data/pricedata/マイクロソフト.csv" chart0/data/102.csv
+          cp -f "data/pricedata/グーグル.csv" chart0/data/103.csv
+          cp -f "data/pricedata/アマゾン.csv" chart0/data/104.csv
+          cp -f "data/pricedata/エヌビディア.csv" chart0/data/105.csv
+          cp -f "data/pricedata/メタ.csv" chart0/data/106.csv
+          cp -f "data/pricedata/テスラ.csv" chart0/data/107.csv
+          cp -f "data/pricedata/アーク.csv" chart0/data/108.csv
+          cp -f "data/pricedata/マイクロン.csv" chart0/data/109.csv
+          cp -f "data/pricedata/AMD.csv" chart0/data/110.csv
+          cp -f "data/pricedata/インテル.csv" chart0/data/111.csv
+          cp -f "data/pricedata/アーム.csv" chart0/data/112.csv
+          cp -f "data/pricedata/ブロードコム.csv" chart0/data/113.csv
+          cp -f "data/pricedata/クアルコム.csv" chart0/data/114.csv
+          cp -f "data/pricedata/ASML(蘭).csv" chart0/data/115.csv
+          cp -f "data/pricedata/TSMC(台).csv" chart0/data/116.csv
+          cp -f "data/pricedata/サムスン(韓).csv" chart0/data/117.csv
+          cp -f "data/pricedata/テンセント(中).csv" chart0/data/118.csv
+          cp -f "data/pricedata/アリババ(中).csv" chart0/data/119.csv
+          cp -f "data/pricedata/パランディア.csv" chart0/data/120.csv
+          cp -f "data/pricedata/SAP(独).csv" chart0/data/121.csv
+          cp -f "data/pricedata/VW(独).csv" chart0/data/122.csv
+          cp -f "data/pricedata/BASF(独).csv" chart0/data/123.csv
+          cp -f "data/pricedata/バークシャーH.csv" chart0/data/124.csv
+          cp -f "data/pricedata/JPモルガン.csv" chart0/data/125.csv
+          cp -f "data/pricedata/GS.csv" chart0/data/126.csv
+          cp -f "data/pricedata/HSBC(英).csv" chart0/data/127.csv
+          cp -f "data/pricedata/BNPパリバ(仏).csv" chart0/data/128.csv
+          cp -f "data/pricedata/LVMH(仏).csv" chart0/data/129.csv
+          cp -f "data/pricedata/ウォルマート.csv" chart0/data/130.csv
+          cp -f "data/pricedata/マクドナルド.csv" chart0/data/131.csv
 
       - name: Commit & push if changed
         run: |
