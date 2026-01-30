@@ -1,4 +1,4 @@
-// ●米国googleスプレッドシート
+// ●米国googleスプレッドシート（2つのソースから取得）
 // npm i playwright
 // 内部構造で表取得。
 
@@ -6,18 +6,18 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
-//●サイトアドレス
-(async () => {
-  const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSL9K4lttSGzJuN-OO7yKTA68u2pdIkVsmoRN2XfU8oKJAkR_ORPakgHlioMZRYnxA-JwU0X_BizRgF/pubhtml';
+// ●サイトアドレス（2つのソース）
+const urls = [
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSL9K4lttSGzJuN-OO7yKTA68u2pdIkVsmoRN2XfU8oKJAkR_ORPakgHlioMZRYnxA-JwU0X_BizRgF/pubhtml',
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3fqIKymhMvbXfeJCEUUisMG9ImtqQk6zPw3gk66H_VFQeOVZar5bPniG13vJjWsdMc8vUh4R_gEf6/pubhtml?gid=0&single=true'
+];
 
-  const browser = await chromium.launch({ headless: false });
-  const page = await browser.newPage();
-  
-// ページを開く（完全読み込みまで待機）
+// スプレッドシートからデータを取得する関数
+async function fetchSpreadsheetData(page, url) {
   await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
   await page.waitForTimeout(3000); // 描画完了待ち
 
-// iframeがあればその中を取得、なければメインページから取得
+  // iframeがあればその中を取得、なければメインページから取得
   let frame = page;
   const iframeElement = await page.$('iframe');
   if (iframeElement) {
@@ -25,7 +25,7 @@ const path = require('path');
     if (contentFrame) frame = contentFrame;
   }
 
-// 表のセルデータを取得してCSV形式に変換
+  // 表のセルデータを取得してCSV形式に変換
   const text = await frame.evaluate(() => {
     // 複数のセレクタを試す
     const selectors = ['table', '#sheets-viewport table', '.sheet-table', 'table.waffle'];
@@ -56,6 +56,26 @@ const path = require('path');
     return csvRows.join('\n');
   });
 
+  return text;
+}
+
+(async () => {
+  const browser = await chromium.launch({ headless: false });
+  const page = await browser.newPage();
+
+  // 両方のソースからデータを取得
+  const allData = [];
+  for (let i = 0; i < urls.length; i++) {
+    console.log(`Fetching source ${i + 1}: ${urls[i]}`);
+    const data = await fetchSpreadsheetData(page, urls[i]);
+    if (data) {
+      allData.push(data);
+    }
+  }
+
+  // 2つのデータを単純に合体
+  const mergedText = allData.join('\n');
+
   // ●保存先ディレクトリ & ファイル
   const dataDir = path.join(__dirname, 'data');
   const filename = path.join(dataDir, 'usa.csv');
@@ -66,7 +86,7 @@ const path = require('path');
   }
 
   // CSV保存（BOM付きUTF-8）
-  const csvContent = '\uFEFF' + text;
+  const csvContent = '\uFEFF' + mergedText;
   fs.writeFileSync(filename, csvContent, 'utf8');
   console.log('saved:', filename);
 
