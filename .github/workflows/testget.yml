@@ -1,4 +1,4 @@
-name: Daily get Update
+name: Daily test get Update
 
 on:
   workflow_dispatch:
