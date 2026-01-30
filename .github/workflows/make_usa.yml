@@ -1,9 +1,9 @@
-name: Daily make test
+name: Daily make_usa test
 # get.ymlが動作し終わったら動作する設定。
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Daily get Update"]    # ← .yml の name と一致させる
+    workflows: ["Daily get_usa Update"]    # ← .yml の name と一致させる
     types: [completed]
 
 permissions:
