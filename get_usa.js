@@ -23,7 +23,7 @@ const path = require('path');
 
   // ●保存先ディレクトリ & ファイル
   const dataDir = path.join(__dirname, 'data');
-  const filename = path.join(dataDir, 'nikkeivi.csv');
+  const filename = path.join(dataDir, 'usa.csv');
 
   // dataフォルダが無ければ作成
   if (!fs.existsSync(dataDir)) {
