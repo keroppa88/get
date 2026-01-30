@@ -1,0 +1,41 @@
+name: Daily get Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 07:20 UTC = 16:20 JST (Mon–Fri)
+    - cron: '20 7 * * 1-5'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install playwright
+          npx playwright install --with-deps chromium
+
+      - name: Run scripts (sequential, continue on error)
+        run: |
+          set +e
+
+          echo "=== get_usa.js ==="
+          xvfb-run -a node get_usa.js || echo "FAILED: get_usa.js"
+
+      - name: Save results
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add data/*.csv
+          git commit -m "Automated update" || exit 0
+          git push
