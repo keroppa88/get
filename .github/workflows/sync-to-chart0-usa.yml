@@ -1,0 +1,44 @@
+name: Sync pricedata to chart0
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'data/pricedata/NYダウ.csv'
+      - 'data/pricedata/S&P500.csv'
+      - 'data/pricedata/ナスダック.csv'
+      - 'data/pricedata/ラッセル2000.csv'
+      - 'data/pricedata/SOX指数.csv'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout get
+        uses: actions/checkout@v4
+
+      - name: Clone chart0
+        run: |
+          git clone https://x-access-token:${{ secrets.SYNC_TOKEN }}@github.com/keroppa88/chart0.git chart0
+
+      - name: Copy CSV files
+        run: |
+          cp -f "data/pricedata/NYダウ.csv" chart0/data/051.csv
+          cp -f "data/pricedata/S&P500.csv" chart0/data/052.csv
+          cp -f "data/pricedata/ナスダック.csv" chart0/data/053.csv
+          cp -f "data/pricedata/ラッセル2000.csv" chart0/data/054.csv
+          cp -f "data/pricedata/SOX指数.csv" chart0/data/055.csv
+
+      - name: Commit & push if changed
+        run: |
+          cd chart0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git status --porcelain | grep -q .; then
+            git add data/
+            git commit -m "sync: pricedata from get [skip ci]"
+            git push
+          else
+            echo "No changes; skip."
+          fi
