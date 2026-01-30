@@ -1,4 +1,4 @@
-name: Sync pricedata to chart0
+name: Sync pricedata_usa to chart0
 # csvに変化があるとchart0リポジトリに反映
 on:
   push:
