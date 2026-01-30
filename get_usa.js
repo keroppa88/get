@@ -12,16 +12,27 @@ const path = require('path');
   const browser = await chromium.launch({ headless: false });
   const page = await browser.newPage();
   
-// ページを開く（軽めの待機設定）
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+// ページを開く（完全読み込みまで待機）
+  await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+  await page.waitForTimeout(3000); // 描画完了待ち
 
-// 表が読み込まれるまで待機
-  await page.waitForSelector('table.waffle', { timeout: 30000 });
-  await page.waitForTimeout(2000); // 描画完了待ち
+// iframeがあればその中を取得、なければメインページから取得
+  let frame = page;
+  const iframeElement = await page.$('iframe');
+  if (iframeElement) {
+    const contentFrame = await iframeElement.contentFrame();
+    if (contentFrame) frame = contentFrame;
+  }
 
 // 表のセルデータを取得してCSV形式に変換
-  const text = await page.evaluate(() => {
-    const table = document.querySelector('table.waffle');
+  const text = await frame.evaluate(() => {
+    // 複数のセレクタを試す
+    const selectors = ['table', '#sheets-viewport table', '.sheet-table', 'table.waffle'];
+    let table = null;
+    for (const sel of selectors) {
+      table = document.querySelector(sel);
+      if (table) break;
+    }
     if (!table) return '';
 
     const rows = table.querySelectorAll('tr');
