@@ -43,9 +43,9 @@ function getLastDate(filePath) {
   }
 }
 
-function appendIfNotExists(outPath, dateISO, open, high, low, close) {
+function appendIfNotExists(outPath, dateISO, open, high, low, close, volume) {
   const header = 'Date,Open,High,Low,Close,Volume,TradingValue,UpLimit,LowLimit';
-  const newLine = `${dateISO},${open},${high},${low},${close},,,,`;
+  const newLine = `${dateISO},${open},${high},${low},${close},${volume || ''},,,`;
 
   if (!fs.existsSync(outPath)) {
     fs.writeFileSync(outPath, `${header}\n${newLine}\n`, 'utf8');
@@ -155,11 +155,12 @@ function sanitizeFilename(name) {
       continue;
     }
 
-    // 列2=始値, 列3=高値, 列4=安値, 列5=終値, 列7=取引日
+    // 列2=始値, 列3=高値, 列4=安値, 列5=終値, 列6=出来高, 列7=取引日
     const open = row[2];
     const high = row[3];
     const low = row[4];
     const close = row[5];
+    const volume = row[6];
     const tradingDate = row[7]; // "2026/01/29"
 
     if (!close || !open || !high || !low) {
@@ -177,7 +178,7 @@ function sanitizeFilename(name) {
     }
 
     const outPath = path.join(OUT_DIR, stock.file);
-    appendIfNotExists(outPath, dateISO, open, high, low, close);
+    appendIfNotExists(outPath, dateISO, open, high, low, close, volume);
     console.log('saved:', outPath, 'date:', dateISO);
   }
 
