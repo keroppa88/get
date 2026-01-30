@@ -14,12 +14,35 @@ const path = require('path');
   
 // ページを開く（軽めの待機設定）
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  
-// 数秒だけ待つ（描画・JS実行待機）← 必要に応じて秒数調整
-  await page.waitForTimeout(3000);
-  
-// ページ全体の表示テキストを取得
-  const text = await page.innerText('body');
+
+// 表が読み込まれるまで待機
+  await page.waitForSelector('table.waffle', { timeout: 30000 });
+  await page.waitForTimeout(2000); // 描画完了待ち
+
+// 表のセルデータを取得してCSV形式に変換
+  const text = await page.evaluate(() => {
+    const table = document.querySelector('table.waffle');
+    if (!table) return '';
+
+    const rows = table.querySelectorAll('tr');
+    const csvRows = [];
+
+    for (const row of rows) {
+      const cells = row.querySelectorAll('td, th');
+      const rowData = [];
+      for (const cell of cells) {
+        // セルのテキストを取得（改行やカンマをエスケープ）
+        let cellText = cell.innerText.trim();
+        // ダブルクォートをエスケープ
+        cellText = cellText.replace(/"/g, '""');
+        rowData.push(`"${cellText}"`);
+      }
+      if (rowData.length > 0) {
+        csvRows.push(rowData.join(','));
+      }
+    }
+    return csvRows.join('\n');
+  });
 
   // ●保存先ディレクトリ & ファイル
   const dataDir = path.join(__dirname, 'data');
@@ -30,13 +53,8 @@ const path = require('path');
     fs.mkdirSync(dataDir);
   }
 
-  // CSV生成　改行ごとに1行として書き込む
-  const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-  let csvContent = '\uFEFF'; // BOM
-  for (const line of lines) {
-    csvContent += `"${line.replace(/"/g, '""')}"\n`;
-  }
-
+  // CSV保存（BOM付きUTF-8）
+  const csvContent = '\uFEFF' + text;
   fs.writeFileSync(filename, csvContent, 'utf8');
   console.log('saved:', filename);
 
