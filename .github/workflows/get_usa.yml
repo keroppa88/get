@@ -1,10 +1,10 @@
-name: Daily test get Update
+name: Daily get_usa Update
 
 on:
   workflow_dispatch:
   schedule:
-    # 07:20 UTC = 16:20 JST (Mon–Fri)
-    - cron: '20 7 * * 1-5'
+    # 07:00 JST = 22:00 UTC (Mon–Fri)
+    - cron: '0 22 * * 1-5'
 
 permissions:
   contents: write
