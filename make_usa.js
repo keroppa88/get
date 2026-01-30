@@ -80,11 +80,11 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
   // 指数データ抽出用
   // データ順: 列4=終値, 列5=始値, 列6=高値, 列7=安値
   const indices = [
-    { file: '003.csv', code: 'INDEXDJX:.DJI', name: 'NYダウ' },
-    { file: '004.csv', code: 'INDEXSP:.INX', name: 'S&P500' },
-    { file: '005.csv', code: 'INDEXNASDAQ:.IXIC', name: 'ナスダック' },
-    { file: '006.csv', code: 'INDEXRUSSELL:RUT', name: 'ラッセル2000' },
-    { file: '007.csv', code: 'INDEXNASDAQ:SOX', name: 'SOX指数' },
+    { file: 'NYダウ.csv', code: 'INDEXDJX:.DJI', name: 'NYダウ' },
+    { file: 'S&P500.csv', code: 'INDEXSP:.INX', name: 'S&P500' },
+    { file: 'ナスダック.csv', code: 'INDEXNASDAQ:.IXIC', name: 'ナスダック' },
+    { file: 'ラッセル2000.csv', code: 'INDEXRUSSELL:RUT', name: 'ラッセル2000' },
+    { file: 'SOX指数.csv', code: 'INDEXNASDAQ:SOX', name: 'SOX指数' },
   ];
 
   for (const idx of indices) {
@@ -120,10 +120,10 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
   }
 
   if (marketCapValue) {
-    const outPath = path.join(OUT_DIR, '008.csv');
+    const outPath = path.join(OUT_DIR, 'M7時価総額.csv');
     appendIfNotExists(outPath, dateISO, marketCapValue, marketCapValue, marketCapValue, marketCapValue);
     console.log('saved:', outPath, 'date:', dateISO);
   } else {
-    console.log('時価総額の値が見つかりません');
+    console.log('M7時価総額の値が見つかりません');
   }
 })();
