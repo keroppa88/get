@@ -9,6 +9,7 @@ on:
       - 'data/pricedata/ナスダック.csv'
       - 'data/pricedata/ラッセル2000.csv'
       - 'data/pricedata/SOX指数.csv'
+      - 'data/pricedata/M7時価総額.csv'
   workflow_dispatch:
 
 jobs:
@@ -29,6 +30,7 @@ jobs:
           cp -f "data/pricedata/ナスダック.csv" chart0/data/053.csv
           cp -f "data/pricedata/ラッセル2000.csv" chart0/data/054.csv
           cp -f "data/pricedata/SOX指数.csv" chart0/data/055.csv
+          cp -f "data/pricedata/M7時価総額.csv" chart0/data/056.csv
 
       - name: Commit & push if changed
         run: |
