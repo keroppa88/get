@@ -39,7 +39,7 @@ const path = require('path');
     const csvRows = [];
 
     for (const row of rows) {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('td'); // thは行番号なので除外
       const rowData = [];
       for (const cell of cells) {
         // セルのテキストを取得（改行やカンマをエスケープ）
