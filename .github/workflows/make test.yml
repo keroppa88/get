@@ -1,0 +1,51 @@
+name: Daily make test
+# get.ymlが動作し終わったら動作する設定。
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Daily get Update"]    # ← .yml の name と一致させる
+    types: [completed]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+              
+      - name: Run make scripts (continue on error)
+        run: |
+          set +e
+        
+          echo "=== make_jpx.js ==="
+          node make_usa.js || echo "FAILED: make_usa.js"
+
+      - name: Debug outputs
+        if: always()
+        run: |
+          pwd
+          ls -la data
+          ls -la data/pricedata || true
+          git status --porcelain
+        
+      - name: Save results
+        if: always()
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add data/pricedata
+
+          # 変更があるときだけ commit & push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Automated update: pricedata"
+            git push
+          fi
