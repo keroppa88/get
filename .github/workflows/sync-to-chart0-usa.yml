@@ -1,5 +1,5 @@
 name: Sync pricedata to chart0
-
+# csvに変化があるとchart0リポジトリに反映
 on:
   push:
     branches: [ main ]
