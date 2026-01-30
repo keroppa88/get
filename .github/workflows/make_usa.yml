@@ -1,4 +1,4 @@
-name: Daily make_usa test
+name: Daily make_usa
 # get.ymlが動作し終わったら動作する設定。
 on:
   workflow_dispatch:
