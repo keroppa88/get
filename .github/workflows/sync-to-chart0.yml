@@ -20,8 +20,13 @@ jobs:
         run: |
           git clone https://x-access-token:${{ secrets.SYNC_TOKEN }}@github.com/keroppa88/chart0.git chart0
 
+      - name: Generate version file for cache busting
+        run: |
+          echo $(date +%s) > version.txt
+
       - name: Copy CSV files
         run: |
+          cp -f version.txt chart0/data/version.txt
           cp -f "data/pricedata/TOPIX (東証株価指数).csv" chart0/data/000.csv
           cp -f "data/pricedata/日経平均株価.csv" chart0/data/001.csv
           cp -f "data/pricedata/日経平均ボラティリティー・インデックス.csv" chart0/data/002.csv
