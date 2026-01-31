@@ -46,7 +46,8 @@ on:
       - 'data/pricedata/LVMH(仏).csv'
       - 'data/pricedata/ウォルマート.csv'
       - 'data/pricedata/マクドナルド.csv'
-
+      - 'data/pricedata/オラクル.csv'
+      
   workflow_dispatch:
 
 jobs:
@@ -101,6 +102,7 @@ jobs:
           cp -f "data/pricedata/LVMH(仏).csv" chart0/data/129.csv
           cp -f "data/pricedata/ウォルマート.csv" chart0/data/130.csv
           cp -f "data/pricedata/マクドナルド.csv" chart0/data/131.csv
+          cp -f "data/pricedata/オラクル.csv" chart0/data/132.csv
 
       - name: Commit & push if changed
         run: |
