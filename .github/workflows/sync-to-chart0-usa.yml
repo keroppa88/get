@@ -1,6 +1,11 @@
 name: Sync pricedata_usa to chart0
 # csvに変化があるとchart0リポジトリに反映
+# make_usa.ymlからのGitHub Actionsコミットではpushトリガーが発動しないため
+# workflow_runで明示的にトリガーする
 on:
+  workflow_run:
+    workflows: ["Daily make_usa Update"]
+    types: [completed]
   push:
     branches: [ main ]
     paths:
@@ -47,6 +52,8 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    # workflow_runトリガーの場合は成功時のみ実行
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout get
         uses: actions/checkout@v4
