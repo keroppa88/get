@@ -145,6 +145,7 @@ function sanitizeFilename(name) {
     { file: 'LVMH(仏).csv', code: 'EPA:MC', name: 'LVMH(仏)' },
     { file: 'ウォルマート.csv', code: 'NASDAQ:WMT', name: 'ウォルマート' },
     { file: 'マクドナルド.csv', code: 'NYSE:MCD', name: 'マクドナルド' },
+    { file: 'オラクル.csv', code: 'NYSE:MCD', name: 'オラクル' },
   ];
 
   for (const stock of stocks) {
