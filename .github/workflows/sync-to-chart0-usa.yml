@@ -82,7 +82,7 @@ jobs:
           cp -f "data/pricedata/サムスン(韓).csv" chart0/data/117.csv
           cp -f "data/pricedata/テンセント(中).csv" chart0/data/118.csv
           cp -f "data/pricedata/アリババ(中).csv" chart0/data/119.csv
-          cp -f "data/pricedata/パランディア.csv" chart0/data/120.csv
+          cp -f "data/pricedata/パランティア.csv" chart0/data/120.csv
           cp -f "data/pricedata/SAP(独).csv" chart0/data/121.csv
           cp -f "data/pricedata/VW(独).csv" chart0/data/122.csv
           cp -f "data/pricedata/BASF(独).csv" chart0/data/123.csv
