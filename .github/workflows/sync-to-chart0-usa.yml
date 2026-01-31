@@ -29,7 +29,7 @@ on:
       - 'data/pricedata/サムスン(韓).csv'
       - 'data/pricedata/テンセント(中).csv'
       - 'data/pricedata/アリババ(中).csv'
-      - 'data/pricedata/パランディア.csv'
+      - 'data/pricedata/パランティア.csv'
       - 'data/pricedata/SAP(独).csv'
       - 'data/pricedata/VW(独).csv'
       - 'data/pricedata/BASF(独).csv'
