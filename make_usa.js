@@ -146,7 +146,11 @@ function sanitizeFilename(name) {
     { file: 'ウォルマート.csv', code: 'NASDAQ:WMT', name: 'ウォルマート' },
     { file: 'マクドナルド.csv', code: 'NYSE:MCD', name: 'マクドナルド' },
     { file: 'オラクル.csv', code: 'NYSE:ORCL', name: 'オラクル' },
-    { file: 'SKハイニクス.csv', code: 'NYSE:ORCL', name: 'SKハイニクス' },
+    { file: 'SKハイニクス.csv', code: 'KRX:000660', name: 'SKハイニクス' },
+    { file: 'Xiaomi(中).csv', code: 'HKG:1810', name: 'Xiaomi(中)' },
+    { file: 'BYD(中).csv', code: 'SHE:002594', name: 'BYD(中)' },
+    { file: 'SMIC(中).csv', code: 'HKG:0981', name: 'SMIC(中)' },
+    { file: 'NAURA(中).csv', code: 'SHE:002371', name: 'NAURA(中)' },
   ];
 
   for (const stock of stocks) {
