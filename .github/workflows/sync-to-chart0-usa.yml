@@ -48,6 +48,10 @@ on:
       - 'data/pricedata/マクドナルド.csv'
       - 'data/pricedata/オラクル.csv'
       - 'data/pricedata/SKハイニクス.csv'
+      - 'data/pricedata/Xiaomi(中).csv'
+      - 'data/pricedata/BYD(中).csv'
+      - 'data/pricedata/SMIC(中).csv'
+      - 'data/pricedata/NAURA(中).csv'
       
   workflow_dispatch:
 
@@ -110,6 +114,10 @@ jobs:
           cp -f "data/pricedata/マクドナルド.csv" chart0/data/131.csv
           cp -f "data/pricedata/オラクル.csv" chart0/data/132.csv
           cp -f "data/pricedata/SKハイニクス.csv" chart0/data/133.csv
+          cp -f "data/pricedata/Xiaomi(中).csv" chart0/data/134.csv
+          cp -f "data/pricedata/BYD(中).csv" chart0/data/135.csv
+          cp -f "data/pricedata/SMIC(中).csv" chart0/data/136.csv
+          cp -f "data/pricedata/NAURA(中).csv" chart0/data/137.csv
 
       - name: Commit & push if changed
         run: |
