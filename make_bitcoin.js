@@ -26,6 +26,16 @@ function isNumLine(s) {
   return /^[+\-]?\d{1,3}(?:,\d{3})*(?:\.\d+)?$/.test(s.trim());
 }
 
+// パーセント行かどうか "-6.74%" → true
+function isPctLine(s) {
+  return /^[+\-]?\d+(?:\.\d+)?%$/.test(s.trim());
+}
+
+// パーセント文字列を小数に変換 "-6.74%" → -0.0674
+function pctToDecimal(s) {
+  return parseFloat(s.replace(/%/, '')) / 100;
+}
+
 // 東京日付 (YYYY-MM-DD)
 function tokyoTodayISO() {
   const now = new Date();
@@ -80,25 +90,42 @@ function findValueAfterLabel(lines, label) {
   return null;
 }
 
+// ラベルの次の行からパーセント値を取得
+function findPctAfterLabel(lines, label) {
+  for (let i = 0; i < lines.length - 1; i++) {
+    if (lines[i].includes(label)) {
+      const next = lines[i + 1];
+      if (isPctLine(next)) return pctToDecimal(next);
+    }
+  }
+  return null;
+}
+
 (function main() {
   ensureDir(OUT_DIR);
 
   const rawLines = fs.readFileSync(INPUT, 'utf8').split(/\r?\n/).filter(Boolean);
   const lines = rawLines.map(unquote);
 
-  const close = findValueAfterLabel(lines, '売却価格（円）');
-  const high  = findValueAfterLabel(lines, '当日高値');
-  const low   = findValueAfterLabel(lines, '当日安値');
-  const diff  = findValueAfterLabel(lines, '前日比');
+  // 売却価格・購入価格 → 平均値を終値とする
+  const sell = findValueAfterLabel(lines, '売却価格（円）');
+  const buy  = findValueAfterLabel(lines, '購入価格（円）');
+  const high = findValueAfterLabel(lines, '当日高値');
+  const low  = findValueAfterLabel(lines, '当日安値');
+  const pct24h = findPctAfterLabel(lines, '24時間比');
 
-  if (!close) throw new Error('売却価格が見つかりません');
-  if (!high)  throw new Error('当日高値が見つかりません');
-  if (!low)   throw new Error('当日安値が見つかりません');
+  if (!sell) throw new Error('売却価格が見つかりません');
+  if (!buy)  throw new Error('購入価格が見つかりません');
+  if (!high) throw new Error('当日高値が見つかりません');
+  if (!low)  throw new Error('当日安値が見つかりません');
 
-  // Open = Close - 前日比（前日終値 ≒ 当日始値）
+  // Close = (売却価格 + 購入価格) / 2
+  const close = Math.round((Number(sell) + Number(buy)) / 2);
+
+  // Open = Close - (Close × 24時間比)
   let open = '';
-  if (diff) {
-    open = String(Number(close) - Number(diff));
+  if (pct24h != null) {
+    open = Math.round(close - close * pct24h);
   }
 
   const today = tokyoTodayISO();
