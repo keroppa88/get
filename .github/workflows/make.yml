@@ -39,6 +39,9 @@ jobs:
           echo "=== make_yen.js ==="
           node make_yen.js || echo "FAILED: make_yen.js"
 
+          echo "=== make_bitcoin.js ==="
+          node make_bitcoin.js || echo "FAILED: make_bitcoin.js"
+
 
       - name: Debug outputs
         if: always()
