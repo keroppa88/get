@@ -9,21 +9,15 @@ const OUT_DIR = path.join('data', 'pricedata');
 // FMPシンボル → 出力CSVファイル名
 const INDICES = [
   // 米国
-  { symbol: '^DJI',      file: 'NYダウ.csv',       name: 'NYダウ' },
-  { symbol: '^GSPC',     file: 'S&P500.csv',        name: 'S&P500' },
-  { symbol: '^IXIC',     file: 'ナスダック.csv',    name: 'ナスダック' },
-  { symbol: '^RUT',      file: 'ラッセル2000.csv',  name: 'ラッセル2000' },
-  { symbol: '^SOX',      file: 'SOX指数.csv',       name: 'SOX指数' },
+  { symbol: '^DJI',      file: 'NYダウ.csv',        name: 'NYダウ' },
+  { symbol: '^GSPC',     file: 'S&P500.csv',         name: 'S&P500' },
+  { symbol: '^IXIC',     file: 'ナスダック.csv',     name: 'ナスダック' },
+  { symbol: '^RUT',      file: 'ラッセル2000.csv',   name: 'ラッセル2000' },
   // 欧州
-  { symbol: '^GDAXI',    file: 'DAX(独).csv',       name: 'DAX(独)' },
-  { symbol: '^FTSE',     file: 'FTSE100(英).csv',   name: 'FTSE100(英)' },
-  { symbol: '^FCHI',     file: 'CAC40(仏).csv',     name: 'CAC40(仏)' },
-  { symbol: '^STOXX50E', file: 'ユーロStoxx50.csv', name: 'ユーロStoxx50' },
+  { symbol: '^FTSE',     file: 'FTSE100(英).csv',    name: 'FTSE100(英)' },
+  { symbol: '^STOXX50E', file: 'ユーロStoxx50.csv',  name: 'ユーロStoxx50' },
   // アジア
-  { symbol: '^HSI',      file: '香港ハンセン.csv',  name: '香港ハンセン' },
-  { symbol: '000001.SS', file: '上海総合.csv',      name: '上海総合' },
-  { symbol: '^TWII',     file: '台湾加権.csv',      name: '台湾加権' },
-  { symbol: '^KS11',     file: 'KOSPI(韓).csv',     name: 'KOSPI(韓)' },
+  { symbol: '^HSI',      file: '香港ハンセン.csv',   name: '香港ハンセン' },
 ];
 
 function ensureDir(p) {

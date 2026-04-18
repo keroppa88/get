@@ -13,11 +13,11 @@ if (!API_KEY) {
 
 const SYMBOLS = [
   // 米国
-  '^DJI', '^GSPC', '^IXIC', '^RUT', '^SOX',
+  '^DJI', '^GSPC', '^IXIC', '^RUT',
   // 欧州
-  '^GDAXI', '^FTSE', '^FCHI', '^STOXX50E',
+  '^FTSE', '^STOXX50E',
   // アジア
-  '^HSI', '000001.SS', '^TWII', '^KS11',
+  '^HSI',
 ];
 
 // 1シンボルずつ個別リクエスト（複数同時指定は有料プラン限定）
