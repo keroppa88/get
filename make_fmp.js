@@ -78,12 +78,11 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close, volume) {
       continue;
     }
 
-    if (!q.timestamp) {
-      console.log(`[SKIP] ${idx.name}: timestamp なし`);
-      continue;
-    }
+    // timestamp があれば使用、なければ実行日（UTC）を使用
+    const dateISO = q.timestamp
+      ? new Date(q.timestamp * 1000).toISOString().slice(0, 10)
+      : new Date().toISOString().slice(0, 10);
 
-    const dateISO = new Date(q.timestamp * 1000).toISOString().slice(0, 10);
     const open    = q.open     ?? q.price;
     const high    = q.dayHigh  ?? q.price;
     const low     = q.dayLow   ?? q.price;

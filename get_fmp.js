@@ -21,9 +21,8 @@ const SYMBOLS = [
 ];
 
 (async () => {
-  const symbolStr = SYMBOLS.join(',');
-  const url = `https://financialmodelingprep.com/stable/index-quote?symbol=${encodeURIComponent(symbolStr)}&apikey=${API_KEY}`;
-  console.log('Fetching: /stable/index-quote ...');
+  const url = `https://financialmodelingprep.com/stable/batch-index-quotes?apikey=${API_KEY}`;
+  console.log('Fetching: /stable/batch-index-quotes ...');
 
   const res = await fetch(url);
   if (!res.ok) {
