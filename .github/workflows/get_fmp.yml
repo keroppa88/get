@@ -20,15 +20,18 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run get_fmp.js
+      - name: Run get_fmp.js (API取得)
         env:
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
         run: node get_fmp.js
+
+      - name: Run make_fmp.js (CSV整形)
+        run: node make_fmp.js
 
       - name: Save results
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git add data/pricedata/*.csv
+          git add data/fmp.json data/pricedata/*.csv
           git commit -m "Automated update (FMP)" || exit 0
           git push
