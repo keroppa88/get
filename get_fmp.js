@@ -1,13 +1,13 @@
 // FMP (Financial Modeling Prep) 無料APIで海外・米国指数を取得
 // → data/fmp.json に生データ保存
-// 事前設定: 環境変数 fmp_api に APIキーをセット
+// 事前設定: 環境変数 FMP_API に APIキーをセット
 
 const fs = require('fs');
 const path = require('path');
 
-const API_KEY = process.env.fmp_api;
+const API_KEY = process.env.FMP_API;
 if (!API_KEY) {
-  console.error('Error: 環境変数 fmp_api が設定されていません');
+  console.error('Error: 環境変数 FMP_API が設定されていません');
   process.exit(1);
 }
 
