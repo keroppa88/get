@@ -20,28 +20,39 @@ const SYMBOLS = [
   '^HSI', '000001.SS', '^TWII', '^KS11',
 ];
 
-(async () => {
-  const url = `https://financialmodelingprep.com/stable/batch-index-quotes?apikey=${API_KEY}`;
-  console.log('Fetching: /stable/batch-index-quotes ...');
-
+// 1シンボルずつ個別リクエスト（複数同時指定は有料プラン限定）
+async function fetchQuote(symbol) {
+  const url = `https://financialmodelingprep.com/stable/quote?symbol=${encodeURIComponent(symbol)}&apikey=${API_KEY}`;
   const res = await fetch(url);
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`HTTP ${res.status}: ${body}`);
+    console.log(`[${res.status}] ${symbol}: ${body.slice(0, 80)}`);
+    return null;
   }
   const data = await res.json();
+  return Array.isArray(data) && data.length > 0 ? data[0] : null;
+}
 
-  if (data && data['Error Message']) {
-    throw new Error(`API Error: ${data['Error Message']}`);
+(async () => {
+  const results = [];
+  for (const symbol of SYMBOLS) {
+    const q = await fetchQuote(symbol);
+    if (q) {
+      results.push(q);
+      console.log(`[OK] ${symbol}: ${q.price}`);
+    } else {
+      console.log(`[SKIP] ${symbol}`);
+    }
   }
-  if (!Array.isArray(data) || data.length === 0) {
-    throw new Error('データが取得できませんでした。APIキーまたはシンボルを確認してください。');
+
+  if (results.length === 0) {
+    throw new Error('データが1件も取得できませんでした');
   }
 
   const dataDir = path.join('data');
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
   const outPath = path.join(dataDir, 'fmp.json');
-  fs.writeFileSync(outPath, JSON.stringify(data, null, 2), 'utf8');
-  console.log(`saved: ${outPath} (${data.length}件)`);
+  fs.writeFileSync(outPath, JSON.stringify(results, null, 2), 'utf8');
+  console.log(`\nsaved: ${outPath} (${results.length}件)`);
 })();
