@@ -15,8 +15,8 @@ if (!API_KEY) {
 // make_fmp.js 側でシンボルを絞り込む
 
 (async () => {
-  const url = `https://financialmodelingprep.com/api/v3/quotes/index?apikey=${API_KEY}`;
-  console.log('Fetching: /v3/quotes/index ...');
+  const url = `https://financialmodelingprep.com/stable/all-index-quotes?apikey=${API_KEY}`;
+  console.log('Fetching: /stable/all-index-quotes ...');
 
   const res = await fetch(url);
   if (!res.ok) {
