@@ -22,7 +22,7 @@ jobs:
 
       - name: Run get_fmp.js (API取得)
         env:
-          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+          fmp_api: ${{ secrets.fmp_api }}
         run: node get_fmp.js
 
       - name: Run make_fmp.js (CSV整形)
