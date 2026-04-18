@@ -11,12 +11,19 @@ if (!API_KEY) {
   process.exit(1);
 }
 
-// 無料プランで使える全指数一覧エンドポイント
-// make_fmp.js 側でシンボルを絞り込む
+const SYMBOLS = [
+  // 米国
+  '^DJI', '^GSPC', '^IXIC', '^RUT', '^SOX',
+  // 欧州
+  '^GDAXI', '^FTSE', '^FCHI', '^STOXX50E',
+  // アジア
+  '^HSI', '000001.SS', '^TWII', '^KS11',
+];
 
 (async () => {
-  const url = `https://financialmodelingprep.com/stable/all-index-quotes?apikey=${API_KEY}`;
-  console.log('Fetching: /stable/all-index-quotes ...');
+  const symbolStr = SYMBOLS.join(',');
+  const url = `https://financialmodelingprep.com/stable/index-quote?symbol=${encodeURIComponent(symbolStr)}&apikey=${API_KEY}`;
+  console.log('Fetching: /stable/index-quote ...');
 
   const res = await fetch(url);
   if (!res.ok) {
