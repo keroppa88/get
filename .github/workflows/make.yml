@@ -42,6 +42,21 @@ jobs:
           echo "=== make_bitcoin.js ==="
           node make_bitcoin.js || echo "FAILED: make_bitcoin.js"
 
+          echo "=== make_yomiuri333.js ==="
+          node make_yomiuri333.js || echo "FAILED: make_yomiuri333.js"
+
+          echo "=== make_nikkeisijo.js ==="
+          node make_nikkeisijo.js || echo "FAILED: make_nikkeisijo.js"
+
+          echo "=== make_nikkeimany.js ==="
+          node make_nikkeimany.js || echo "FAILED: make_nikkeimany.js"
+
+          echo "=== make_sendoukabu.js ==="
+          node make_sendoukabu.js || echo "FAILED: make_sendoukabu.js"
+
+          echo "=== make_nikkeijikoku.js ==="
+          node make_nikkeijikoku.js || echo "FAILED: make_nikkeijikoku.js"
+
 
       - name: Debug outputs
         if: always()

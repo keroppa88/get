@@ -3,7 +3,7 @@ name: Daily get_usa Update
 on:
   workflow_dispatch:
   schedule:
-    # 07:00 JST = 22:00 UTC (Mon–Fri)
+    # 22:00 UTC (Mon–Fri) = 翌朝07:00 JST (火～土)
     - cron: '0 22 * * 1-5'
 
 permissions:
@@ -31,6 +31,12 @@ jobs:
 
           echo "=== get_usa.js ==="
           xvfb-run -a node get_usa.js || echo "FAILED: get_usa.js"
+
+          echo "=== get_minkabucrypto.js ==="
+          xvfb-run -a node get_minkabucrypto.js || echo "FAILED: get_minkabucrypto.js"
+
+          echo "=== get_rakuten.js ==="
+          xvfb-run -a node get_rakuten.js || echo "FAILED: get_rakuten.js"
 
       - name: Save results
         run: |
