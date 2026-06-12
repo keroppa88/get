@@ -53,6 +53,8 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
   const dateISO = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
 
   const nameRe = /^(.+)\(([A-Z0-9]+)\)$/;
+  // 収集対象（ホワイトリスト）。これ以外の通貨は記録しない。
+  const keepSymbols = new Set(['BTC', 'ETH', 'XRP']);
   let count = 0;
 
   // 暗号資産市場の時価総額（兆円）
@@ -76,6 +78,7 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
 
     const nm = lines[i + 1].trim().match(nameRe);
     if (!nm) continue;
+    if (!keepSymbols.has(nm[2])) continue;
 
     // 「10,203,566\t+98,416(+0.97%)\t約 2,039,612億円」
     const dataCols = lines[i + 2].split('\t').map(c => c.trim());

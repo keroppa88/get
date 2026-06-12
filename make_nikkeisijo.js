@@ -61,31 +61,17 @@ function mdToISO(m, d) {
   // 「160.04-05」のような気配値にも対応し、先頭の数値のみ取る
   const valueRe = /^-?[\d,]+(?:\.\d+)?/;
 
-  const seen = new Set();
   let count = 0;
-  let boardDateISO = null; // 日経平均の日付。下のテーブル抽出にも使う
+  let boardDateISO = null; // 日経平均の日付。テーブル抽出の日付として使う
 
+  // 市況ボードの銘柄は他ソースと重複するため記録しない（日付の特定にのみ使う）
   for (let i = 0; i < lines.length - 2; i++) {
-    const name = lines[i].trim();
+    if (lines[i].trim() !== '日経平均(円)') continue;
     const dm = lines[i + 1].trim().match(dateLineRe);
-    const value = lines[i + 2].trim();
-
-    if (!name || name.includes('\t') || /^[\d,.+\-]+$/.test(name)) continue;
-    if (!dm) continue;
-    const vm = value.match(valueRe);
-    if (!vm || !/^[\d\-]/.test(value)) continue;
-
-    if (seen.has(name)) continue; // 同一指標の重複表示はスキップ
-    seen.add(name);
-
-    const dateISO = mdToISO(dm[1], dm[2]);
-    if (name === '日経平均(円)') boardDateISO = dateISO;
-    const close = vm[0].replace(/,/g, '');
-    const outPath = path.join(OUT_DIR, `${sanitizeFilename(name)}.csv`);
-    appendIfNotExists(outPath, dateISO, close, close, close, close);
-    console.log('saved:', outPath, 'date:', dateISO);
-    count++;
-    i += 2;
+    if (dm && valueRe.test(lines[i + 2].trim())) {
+      boardDateISO = mdToISO(dm[1], dm[2]);
+      break;
+    }
   }
 
   // ===== 国内の株式指標・東証 テーブル =====

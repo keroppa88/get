@@ -57,16 +57,43 @@ function mdToISO(m, d) {
 (function main() {
   const lines = fs.readFileSync(INPUT, 'utf8').split(/\r?\n/).filter(Boolean).map(unquote);
 
-  // 既存パイプライン（make_jpx / make_usa）が四本値付きで記録している銘柄は、
-  // 終値のみのこのスクリプトでは書かない
-  const skipNames = new Set([
-    'NYダウ',
-    '東証プライム市場指数',
-    '東証スタンダード市場指数',
-    '東証グロース市場指数',
-    '東証グロース市場Core指数',
-    '東証グロース市場250指数',
-    '東証REIT指数',
+  // 収集対象（ホワイトリスト）。これ以外の指標は記録しない。
+  // 指数・為替・債券・政策金利は提示された収集項目のみ、商品先物は全て保持。
+  const keepNames = new Set([
+    // 株価指数
+    '香港ハンセン指数',
+    '上海総合指数',
+    'ジャカルタ総合指数',
+    'タイSET指数',
+    'インドSENSEX',
+    'ブラジルボベスパ指数',
+    '独DAX30指数',
+    '仏CAC40指数',
+    '英FT100指数',
+    'VIX指数',
+    // 為替
+    'ユーロ/円',
+    // コモディティ（商品先物は保持）
+    '原油（WTI原油先物）',
+    '天然ガス（Henry Hub）先物（NYMEX）',
+    '金（現物 1oz.あたり）',
+    'Gold先物（COMEX)',
+    'プラチナ先物（NYMEX）',
+    'Silver先物（COMEX)',
+    'Copper先物（COMEX)',
+    'Corn先物（CBOT）',
+    'Wheat先物（CBOT）',
+    'Soybeans先物（CBOT）',
+    // 債券
+    '日本国債5年',
+    '日本国債10年',
+    '米国10年国債',
+    'ドイツ10年国債',
+    'イギリス10年国債',
+    'フランス10年国債',
+    'ユーロ圏10年国債',
+    // 政策金利
+    '日本 無担保コール翌日物',
   ]);
 
   let count = 0;
@@ -80,7 +107,7 @@ function mdToISO(m, d) {
     const value = cols[1];
     const dateCol = cols[cols.length - 1];
 
-    if (!name || name === '指標' || name === '項目名' || skipNames.has(name)) continue;
+    if (!keepNames.has(name)) continue;
     if (!/^-?[\d,]+(?:\.\d+)?$/.test(value)) continue;
 
     // 更新日時列から日付を取得（"06/12 15:45" / "06/11" / "2026/06/12 17:00"）
