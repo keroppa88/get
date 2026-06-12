@@ -24,8 +24,14 @@ jobs:
         run: |
           set +e
         
-          echo "=== make_jpx.js ==="
+          echo "=== make_usa.js ==="
           node make_usa.js || echo "FAILED: make_usa.js"
+
+          echo "=== make_minkabucrypto.js ==="
+          node make_minkabucrypto.js || echo "FAILED: make_minkabucrypto.js"
+
+          echo "=== make_rakuten.js ==="
+          node make_rakuten.js || echo "FAILED: make_rakuten.js"
 
       - name: Debug outputs
         if: always()
