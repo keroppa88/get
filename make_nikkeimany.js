@@ -69,19 +69,13 @@ function mmddToISO(mm, dd) {
   const changeRe = /^[+\-±]?[\d,.]+\s+[+\-]?[\d,.]+%$|^0\.00 0\.00%$/;
   const dateRe = /^(\d{2})\.(\d{2})\(/;
 
-  const skipNames = new Set([
-    '指数値', '前日比', 'データ日付', 'トータルリターン指数',
-    // 既存パイプライン（make_nikkei225 / make_nikkeivi / make_nikkeisemicon / make_jpx）が
-    // 四本値付きで記録している銘柄は、終値のみのこのスクリプトでは書かない
-    '日経平均株価',
-    '日経平均ボラティリティー・インデックス',
-    '日経半導体株指数',
-    'JPX日経インデックス400',
-    'JPX日経中小型株指数',
-    'JPX日経インデックス人的資本100',
-    'JPX日経400レバレッジ・インデックス',
-    'JPX日経400インバース・インデックス',
-    'JPX日経400ダブルインバース・インデックス',
+  // 収集対象（ホワイトリスト）。これ以外の指数は記録しない。
+  // ※日経半導体株指数・日経平均株価等は既存パイプラインが四本値付きで収集済み
+  const keepNames = new Set([
+    '日経平均内需株50指数',
+    '日経平均外需株50指数',
+    '日経平均カバードコール・インデックス',
+    '日経平均カバードコールATMインデックス',
   ]);
   let count = 0;
 
@@ -91,7 +85,7 @@ function mmddToISO(mm, dd) {
     const change = lines[i + 2].trim();
     const dateLine = lines[i + 3].trim();
 
-    if (!name || skipNames.has(name) || isNumberOnlyLine(name)) continue;
+    if (!keepNames.has(name)) continue;
     if (!isNumberOnlyLine(value)) continue;
     if (!changeRe.test(change)) continue;
     const m = dateLine.match(dateRe);
