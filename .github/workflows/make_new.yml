@@ -1,0 +1,57 @@
+name: Test make New Targets
+# 新規収集対象の抽出スクリプト動作検証用ワークフロー（手動実行のみ）。
+# 検証が完了したら make.yml への統合またはスケジュール追加を行う。
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run make scripts (continue on error)
+        run: |
+          set +e
+
+          echo "=== make_nikkeimany.js ==="
+          node make_nikkeimany.js || echo "FAILED: make_nikkeimany.js"
+
+          echo "=== make_yomiuri333.js ==="
+          node make_yomiuri333.js || echo "FAILED: make_yomiuri333.js"
+
+          echo "=== make_nikkeisijo.js ==="
+          node make_nikkeisijo.js || echo "FAILED: make_nikkeisijo.js"
+
+          echo "=== make_yahoofinance.js ==="
+          node make_yahoofinance.js || echo "FAILED: make_yahoofinance.js"
+
+          echo "=== make_rakuten.js ==="
+          node make_rakuten.js || echo "FAILED: make_rakuten.js"
+
+          echo "=== make_minkabucrypto.js ==="
+          node make_minkabucrypto.js || echo "FAILED: make_minkabucrypto.js"
+
+      - name: Save results
+        if: always()
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add data/pricedata
+
+          # 変更があるときだけ commit & push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Automated update: pricedata (new targets test)"
+            git push
+          fi
