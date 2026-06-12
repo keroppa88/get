@@ -32,9 +32,6 @@ jobs:
           echo "=== make_nikkeisijo.js ==="
           node make_nikkeisijo.js || echo "FAILED: make_nikkeisijo.js"
 
-          echo "=== make_yahoofinance.js ==="
-          node make_yahoofinance.js || echo "FAILED: make_yahoofinance.js"
-
           echo "=== make_rakuten.js ==="
           node make_rakuten.js || echo "FAILED: make_rakuten.js"
 
