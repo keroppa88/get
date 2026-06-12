@@ -55,6 +55,21 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
   const nameRe = /^(.+)\(([A-Z0-9]+)\)$/;
   let count = 0;
 
+  // 暗号資産市場の時価総額（兆円）
+  // 「暗号資産市場の時価総額\t24時間売買代金（JPY）\tBTC比率」の次行「348.83 兆\t12.43 兆」
+  for (let i = 0; i < lines.length - 1; i++) {
+    if (!lines[i].startsWith('暗号資産市場の時価総額')) continue;
+    const m = lines[i + 1].trim().match(/^([\d,]+(?:\.\d+)?)\s*兆/);
+    if (m) {
+      const v = m[1].replace(/,/g, '');
+      const outPath = path.join(OUT_DIR, '暗号資産時価総額（兆円）.csv');
+      appendIfNotExists(outPath, dateISO, v, v, v, v);
+      console.log('saved:', outPath, 'date:', dateISO);
+      count++;
+    }
+    break;
+  }
+
   for (let i = 0; i < lines.length - 2; i++) {
     // 「1」（順位のみ。get時のタブは行末で消える場合がある）
     if (!/^\d+$/.test(lines[i].trim())) continue;

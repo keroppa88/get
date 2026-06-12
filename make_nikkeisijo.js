@@ -63,6 +63,7 @@ function mdToISO(m, d) {
 
   const seen = new Set();
   let count = 0;
+  let boardDateISO = null; // 日経平均の日付。下のテーブル抽出にも使う
 
   for (let i = 0; i < lines.length - 2; i++) {
     const name = lines[i].trim();
@@ -78,12 +79,106 @@ function mdToISO(m, d) {
     seen.add(name);
 
     const dateISO = mdToISO(dm[1], dm[2]);
+    if (name === '日経平均(円)') boardDateISO = dateISO;
     const close = vm[0].replace(/,/g, '');
     const outPath = path.join(OUT_DIR, `${sanitizeFilename(name)}.csv`);
     appendIfNotExists(outPath, dateISO, close, close, close, close);
     console.log('saved:', outPath, 'date:', dateISO);
     count++;
     i += 2;
+  }
+
+  // ===== 国内の株式指標・東証 テーブル =====
+  if (boardDateISO) {
+    const tDate = boardDateISO;
+    const results = {}; // 出力名 -> 値（文字列）
+
+    function num(s) {
+      const t = (s || '').replace(/[,億円百万倍％%株]/g, '').trim();
+      return /^-?\d+(?:\.\d+)?$/.test(t) ? Number(t) : null;
+    }
+
+    let section = null;
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line.includes('\t')) {
+        if (/^(純資産倍率|株価収益率|株式益回り|平均配当利回り|売買高・売買代金・騰落銘柄数)/.test(line)) {
+          section = RegExp.$1;
+        }
+        continue;
+      }
+      const cols = line.split('\t').map(c => c.trim());
+      const name = cols[0];
+
+      // 時価総額（普通株式ベース）: プライム/スタンダード/グロース（億円→兆円）
+      if (/^[(（]普通株式ベース[)）]$/.test(name) && cols[1] && cols[1].includes('億円')
+          && !('プライム時価総額（兆円）' in results)) {
+        const p = num(cols[1]), s = num(cols[2]), g = num(cols[3]);
+        if (p != null && s != null && g != null) {
+          results['プライム時価総額（兆円）'] = (p / 10000).toFixed(4);
+          results['スタンダード時価総額（兆円）'] = (s / 10000).toFixed(4);
+          results['グロース時価総額（兆円）'] = (g / 10000).toFixed(4);
+          results['東証普通株時価総額（兆円）'] = ((p + s + g) / 10000).toFixed(4);
+          results['プライム時価総額比率/全市場'] = (p / (p + s + g) * 100).toFixed(2);
+        }
+        continue;
+      }
+
+      if (section === '純資産倍率') {
+        const map = { '日経平均': '日経PBR', 'プライム全銘柄': 'プライムPBR', 'スタンダード全銘柄': 'スタンダードPBR', 'グロース全銘柄': 'グロースPBR' };
+        if (map[name] && num(cols[1]) != null) results[map[name]] = String(num(cols[1]));
+      } else if (section === '株価収益率') {
+        const map = { '日経平均': '日経平均PER予想', 'プライム全銘柄': 'プライムPER予想', 'スタンダード全銘柄': 'スタンダードPER予想', 'グロース全銘柄': 'グロースPER予想' };
+        if (map[name] && num(cols[2]) != null) results[map[name]] = String(num(cols[2]));
+      } else if (section === '株式益回り') {
+        if (name === 'プライム全銘柄') {
+          if (num(cols[1]) != null) results['プライム株式益利回り前期基準'] = String(num(cols[1]));
+          if (num(cols[2]) != null) results['プライム株式益利回り予想'] = String(num(cols[2]));
+        }
+      } else if (section === '平均配当利回り') {
+        if (name === '日経平均') {
+          if (num(cols[1]) != null) results['日経配当利回り前期'] = String(num(cols[1]));
+          if (num(cols[2]) != null) results['日経配当利回り予想'] = String(num(cols[2]));
+        } else if (name === 'プライム全銘柄') {
+          if (num(cols[1]) != null) results['プライム配当前期'] = String(num(cols[1]));
+          if (num(cols[2]) != null) results['プライム配当予想'] = String(num(cols[2]));
+        }
+      } else if (section === '売買高・売買代金・騰落銘柄数') {
+        // 列順: プライム / スタンダード / グロース
+        const markets = ['プライム', 'スタンダード', 'グロース'];
+        if (name === '売買代金') {
+          markets.forEach((mkt, k) => {
+            const v = num(cols[k + 1]);
+            if (v != null) results[`${mkt}売買代金（兆円）`] = (v / 1e6).toFixed(6);
+          });
+        } else if (['値上がり銘柄数', '値下がり銘柄数', '商い成立銘柄数'].includes(name)) {
+          markets.forEach((mkt, k) => {
+            const v = num(cols[k + 1]);
+            if (v != null) results[`${mkt}${name}`] = String(v);
+          });
+        } else if (name === '年初来高値更新銘柄数' || name === '年初来安値更新銘柄数') {
+          const short = name.replace('更新銘柄数', '銘柄数');
+          markets.forEach((mkt, k) => {
+            const v = num(cols[k + 1]);
+            if (v != null) results[`${mkt}${short}`] = String(v);
+          });
+        }
+      }
+    }
+
+    // 値上がり率 = 値上がり銘柄数 / 商い成立銘柄数（%）
+    for (const mkt of ['プライム', 'スタンダード', 'グロース']) {
+      const up = Number(results[`${mkt}値上がり銘柄数`]);
+      const total = Number(results[`${mkt}商い成立銘柄数`]);
+      if (up > 0 && total > 0) results[`${mkt}値上がり率`] = (up / total * 100).toFixed(2);
+    }
+
+    for (const [name, value] of Object.entries(results)) {
+      const outPath = path.join(OUT_DIR, `${sanitizeFilename(name)}.csv`);
+      appendIfNotExists(outPath, tDate, value, value, value, value);
+      console.log('saved:', outPath, 'date:', tDate);
+      count++;
+    }
   }
 
   if (count === 0) throw new Error('指標データを1件も抽出できません');
