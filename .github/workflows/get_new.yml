@@ -1,0 +1,55 @@
+name: Test get New Targets
+# 新規収集対象の動作検証用ワークフロー（手動実行のみ）。
+# 検証が完了したら get.yml への統合またはスケジュール追加を行う。
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install playwright
+          npx playwright install --with-deps chromium
+
+      - name: Run scripts (sequential, continue on error)
+        run: |
+          set +e
+
+          echo "=== get_nikkeimany.js ==="
+          xvfb-run -a node get_nikkeimany.js || echo "FAILED: get_nikkeimany.js"
+
+          echo "=== get_yomiuri333.js ==="
+          xvfb-run -a node get_yomiuri333.js || echo "FAILED: get_yomiuri333.js"
+
+          echo "=== get_nikkeisijo.js ==="
+          xvfb-run -a node get_nikkeisijo.js || echo "FAILED: get_nikkeisijo.js"
+
+          echo "=== get_yahoofinance.js ==="
+          xvfb-run -a node get_yahoofinance.js || echo "FAILED: get_yahoofinance.js"
+
+          echo "=== get_rakuten.js ==="
+          xvfb-run -a node get_rakuten.js || echo "FAILED: get_rakuten.js"
+
+          echo "=== get_minkabucrypto.js ==="
+          xvfb-run -a node get_minkabucrypto.js || echo "FAILED: get_minkabucrypto.js"
+
+      - name: Save results
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add data/*.csv
+          git commit -m "Automated update (new targets test)" || exit 0
+          git push
