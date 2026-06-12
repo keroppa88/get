@@ -45,6 +45,18 @@ if (!dataDate) {
   process.exit(1);
 }
 
+// 収集しない指数（指示により出力対象から除外）
+const excludeNames = new Set([
+  'TOPIXレバレッジ（2倍）指数',
+  'TOPIXインバース(-1倍)指数',
+  'TOPIXダブルインバース(-2倍)指数',
+  '東証REITレバレッジ（2倍）指数',
+  '東証REITインバース（-1倍）指数',
+  '東証REITダブルインバース（-2倍）指数',
+  'JPXプライム150指数',
+  'JPXスタートアップ急成長100指数',
+]);
+
 let readData = false;
 
 for (const line of lines) {
@@ -69,6 +81,7 @@ for (const line of lines) {
   if (cols.length < 7) continue;
 
   const name = cols[0].trim();
+  if (excludeNames.has(name)) continue;
   const close = cols[1].replace(/,/g, '');
   const open  = cols[4].replace(/,/g, '');
   const high  = cols[5].replace(/,/g, '');
