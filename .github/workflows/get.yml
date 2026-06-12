@@ -45,7 +45,7 @@ jobs:
           xvfb-run -a node get_yen.js || echo "FAILED: get_yen.js"
           
           echo "=== get_bitcoin.js ==="
-          xvfb-run -a node get_bitocoin.js || echo "FAILED: get_bitocoin.js"
+          xvfb-run -a node get_bitcoin.js || echo "FAILED: get_bitcoin.js"
 
       - name: Save results
         run: |

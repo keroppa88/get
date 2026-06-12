@@ -41,6 +41,9 @@ jobs:
           echo "=== make_minkabucrypto.js ==="
           node make_minkabucrypto.js || echo "FAILED: make_minkabucrypto.js"
 
+          echo "=== make_sendoukabu.js ==="
+          node make_sendoukabu.js || echo "FAILED: make_sendoukabu.js"
+
       - name: Save results
         if: always()
         run: |
