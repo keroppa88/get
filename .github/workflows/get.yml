@@ -59,6 +59,9 @@ jobs:
           echo "=== get_nikkeimany.js ==="
           xvfb-run -a node get_nikkeimany.js || echo "FAILED: get_nikkeimany.js"
 
+          echo "=== get_nikkeietc.js ==="
+          xvfb-run -a node get_nikkeietc.js || echo "FAILED: get_nikkeietc.js"
+
       - name: Save results
         run: |
           git config --global user.email "action@github.com"
