@@ -38,6 +38,9 @@ jobs:
           echo "=== get_rakuten.js ==="
           xvfb-run -a node get_rakuten.js || echo "FAILED: get_rakuten.js"
 
+          echo "=== get_google.js ==="
+          xvfb-run -a node get_google.js || echo "FAILED: get_google.js"
+
       - name: Save results
         run: |
           git config --global user.email "action@github.com"
