@@ -33,6 +33,9 @@ jobs:
           echo "=== make_rakuten.js ==="
           node make_rakuten.js || echo "FAILED: make_rakuten.js"
 
+          echo "=== make_google.js ==="
+          node make_google.js || echo "FAILED: make_google.js"
+
       - name: Debug outputs
         if: always()
         run: |
