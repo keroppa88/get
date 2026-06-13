@@ -45,17 +45,19 @@ function appendIfNotExists(outPath, dateISO, open, high, low, close) {
   fs.appendFileSync(outPath, `${newLine}\n`, 'utf8');
 }
 
-// MM/DD（年なし）から日付を補完。未来日付になる場合は前年とみなす
-function mdToISO(m, d) {
-  const now = new Date(Date.now() + 9 * 3600 * 1000); // JST
-  let y = now.getUTCFullYear();
-  const t = Date.UTC(y, Number(m) - 1, Number(d));
-  if (t - Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) > 30 * 86400000) y--;
-  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+// 取得日(JST)の前日のISO日付を返す。
+// rakutenは朝7:00 JST（火〜土）に実行され、その時点のデータは前営業日の
+// 市場を反映するため、ページの更新日時(JST)ではなく取得日の前日を記録する。
+function prevDayISO() {
+  const t = new Date(Date.now() + 9 * 3600 * 1000 - 86400000); // JST - 1日
+  return `${t.getUTCFullYear()}-${String(t.getUTCMonth() + 1).padStart(2, '0')}-${String(t.getUTCDate()).padStart(2, '0')}`;
 }
 
 (function main() {
   const lines = fs.readFileSync(INPUT, 'utf8').split(/\r?\n/).filter(Boolean).map(unquote);
+
+  // 取得日(JST)の前日を全指標の日付として使う
+  const dateISO = prevDayISO();
 
   // 収集対象（ホワイトリスト）。これ以外の指標は記録しない。
   // 指数・為替・債券・政策金利は提示された収集項目のみ、商品先物は全て保持。
@@ -101,21 +103,9 @@ function mdToISO(m, d) {
 
     const name = cols[0];
     const value = cols[1];
-    const dateCol = cols[cols.length - 1];
 
     if (!keepNames.has(name)) continue;
     if (!/^-?[\d,]+(?:\.\d+)?$/.test(value)) continue;
-
-    // 更新日時列から日付を取得（"06/12 15:45" / "06/11" / "2026/06/12 17:00"）
-    let dateISO = null;
-    let m = dateCol.match(/^(\d{4})\/(\d{2})\/(\d{2})/);
-    if (m) {
-      dateISO = `${m[1]}-${m[2]}-${m[3]}`;
-    } else {
-      m = dateCol.match(/^(\d{2})\/(\d{2})/);
-      if (m) dateISO = mdToISO(m[1], m[2]);
-    }
-    if (!dateISO) continue;
 
     const close = value.replace(/,/g, '');
     const outPath = path.join(OUT_DIR, `${sanitizeFilename(name)}.csv`);
