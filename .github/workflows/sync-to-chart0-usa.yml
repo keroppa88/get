@@ -59,6 +59,8 @@ on:
       - 'data/pricedata/独DAX30指数.csv'
       - 'data/pricedata/台湾加権.csv'
       - 'data/pricedata/仏CAC40指数.csv'
+      - 'data/pricedata/ユーロ50.csv'
+      - 'data/pricedata/インドSENSEX.csv'
       
   workflow_dispatch:
 
@@ -132,6 +134,8 @@ jobs:
           cp -f "data/pricedata/独DAX30指数.csv" chart0/data/086.csv
           cp -f "data/pricedata/仏CAC40指数.csv" chart0/data/087.csv
           cp -f "data/pricedata/VIX指数.csv" chart0/data/057.csv
+          cp -f "data/pricedata/ユーロ50.csv" chart0/data/088.csv
+          cp -f "data/pricedata/インドSENSEX.csv" chart0/data/089.csv
           
       - name: Commit & push if changed
         run: |
