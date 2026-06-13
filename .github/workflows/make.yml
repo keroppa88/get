@@ -57,6 +57,9 @@ jobs:
           echo "=== make_nikkeijikoku.js ==="
           node make_nikkeijikoku.js || echo "FAILED: make_nikkeijikoku.js"
 
+          echo "=== make_nikkeietc.js ==="
+          node make_nikkeietc.js || echo "FAILED: make_nikkeietc.js"
+
 
       - name: Debug outputs
         if: always()
