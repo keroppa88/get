@@ -44,7 +44,7 @@ jobs:
 
       - name: Clone jpx_data
         run: |
-          git clone https://x-access-token:${{ secrets.JPX_DATA_TOKEN }}@github.com/keroppa88/jpx_data.git jpx_data
+          git clone https://x-access-token:${{ secrets.SYNC_TOKEN }}@github.com/keroppa88/jpx_data.git jpx_data
 
       - name: Copy CSV files
         run: |
