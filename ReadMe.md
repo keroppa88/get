@@ -31,4 +31,104 @@
 | rakuten | 楽天証券 世界の指数等 | **海外指数9種＋VIX**（ハンセン・上海・ジャカルタ・タイSET・SENSEX・ボベスパ・DAX・CAC40・FT100・VIX）、**ユーロ/円**、**商品先物**（原油WTI・天然ガス・金現物/先物・プラチナ・銀・銅・コーン・小麦・大豆）、**債券**（日5年/10年・米10年・独/英/仏/ユーロ圏10年）、**無担保コール翌日物** |
 | minkabucrypto | みんかぶ暗号資産 | **BTC・ETH・XRP**（円建て）、**暗号資産時価総額（兆円）** |
 
+現在、getはWEBからの収集のみ。それをchart0にデータ供給している。
+以前はデスクトップPCで収集したものをgithub・getにプッシュしていた。
+その時に2026/05/26に欠損値が発生した。
 
+# 2026-05-26 欠損CSV一覧
+# 判定: 2026-05-25 と 2026-05-27 を持つのに 2026-05-26 が無いファイル
+# 原因: 2026-05-26 夕方更新の取りこぼし（当日ジョブが前日表示ページ取得/失敗）
+# 生成日: 2026-06-13
+
+JPX日経400インバース・インデックス.csv
+JPX日経400ダブルインバース・インデックス.csv
+JPX日経400レバレッジ・インデックス.csv
+JPX日経インデックス400.csv
+JPX日経インデックス人的資本100.csv
+JPX日経中小型株指数.csv
+TOPIX (東証株価指数).csv
+TOPIX 100.csv
+TOPIX 1000.csv
+TOPIX 500 グロース.csv
+TOPIX 500 バリュー.csv
+TOPIX 500.csv
+TOPIX Core30.csv
+TOPIX Ex-Financials.csv
+TOPIX Large70.csv
+TOPIX Mid400.csv
+TOPIX Small グロース.csv
+TOPIX Small バリュー.csv
+TOPIX Small.csv
+TOPIX Small500.csv
+TOPIX グロース.csv
+TOPIX バリュー.csv
+TOPIX-17 エネルギー資源.csv
+TOPIX-17 不動産.csv
+TOPIX-17 医薬品.csv
+TOPIX-17 商社・卸売.csv
+TOPIX-17 小売.csv
+TOPIX-17 建設・資材.csv
+TOPIX-17 情報通信・サービスその他.csv
+TOPIX-17 機械.csv
+TOPIX-17 素材・化学.csv
+TOPIX-17 自動車･輸送機.csv
+TOPIX-17 運輸・物流.csv
+TOPIX-17 金融（除く銀行）.csv
+TOPIX-17 鉄鋼・非鉄.csv
+TOPIX-17 銀行.csv
+TOPIX-17 電力・ガス.csv
+TOPIX-17 電機・精密.csv
+TOPIX-17 食品.csv
+その他製品.csv
+その他金融業.csv
+ガラス・土石製品.csv
+ゴム製品.csv
+サービス業.csv
+ドル円.csv
+パルプ・紙.csv
+上場時価総額加重TOPIX.csv
+不動産業.csv
+中型.csv
+保険業.csv
+倉庫・運輸関連業.csv
+化学.csv
+医薬品.csv
+卸売業.csv
+大型.csv
+小型.csv
+小売業.csv
+建設業.csv
+情報・通信業.csv
+日経半導体株指数.csv
+日経平均ボラティリティー・インデックス.csv
+日経平均株価.csv
+東証REITオフィス指数.csv
+東証REIT住宅指数.csv
+東証REIT商業・物流等指数.csv
+東証REIT指数.csv
+東証インフラファンド指数.csv
+東証グロース市場250指数.csv
+東証グロース市場Core指数.csv
+東証グロース市場指数.csv
+東証スタンダード市場TOP20.csv
+東証スタンダード市場指数.csv
+東証プライム市場指数.csv
+東証配当フォーカス100指数.csv
+機械.csv
+水産・農林業.csv
+海運業.csv
+石油・石炭製品.csv
+空運業.csv
+精密機器.csv
+繊維製品.csv
+証券、商品先物取引業.csv
+輸送用機器.csv
+金属製品.csv
+鉄鋼.csv
+鉱業.csv
+銀行業.csv
+陸運業.csv
+電気・ガス業.csv
+電気機器.csv
+非鉄金属.csv
+食料品.csv
