@@ -56,6 +56,7 @@ jobs:
             [ -z "$name" ] && continue
             cp -f "data/pricedata/$name.csv" "jpx_data/data/$name.csv"
           done <<'LIST'
+          TOPIX (東証株価指数)
           TOPIX Core30
           TOPIX Large70
           TOPIX Mid400
