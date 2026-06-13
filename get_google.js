@@ -1,5 +1,6 @@
-// ●Google スプレッドシート（指数四本値）
+// ●Google スプレッドシート（公開pubhtml・指数の四本値）
 // npm i playwright
+// テーブル本体(table.waffle)はJSで遅延描画されるため、その要素の描画を待ってから取得する
 
 const { chromium } = require('playwright');
 const fs = require('fs');
@@ -12,20 +13,25 @@ const path = require('path');
   const browser = await chromium.launch({ headless: false });
   const page = await browser.newPage();
 
-// ページを開く（軽めの待機設定）
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  // ページを開く
+  await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
 
-// 数秒だけ待つ（描画・JS実行待機）← 必要に応じて秒数調整
-  await page.waitForTimeout(5000);
-
-// ページ全体の表示テキストを取得
-  const text = await page.innerText('body');
+  // テーブル本体の描画を待つ（失敗してもbodyにフォールバック）
+  // innerText('table.waffle') はセル間がタブ・行ごとに改行で得られる
+  let text;
+  try {
+    await page.waitForSelector('table.waffle tbody tr td', { timeout: 30000 });
+    text = await page.innerText('table.waffle');
+  } catch (e) {
+    console.log('waffle table not found, fallback to body:', e.message);
+    await page.waitForTimeout(5000);
+    text = await page.innerText('body');
+  }
 
   // ●保存先ディレクトリ & ファイル
   const dataDir = path.join(__dirname, 'data');
   const filename = path.join(dataDir, 'google.csv');
 
-  // dataフォルダが無ければ作成
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir);
   }
@@ -38,7 +44,7 @@ const path = require('path');
   }
 
   fs.writeFileSync(filename, csvContent, 'utf8');
-  console.log('saved:', filename);
+  console.log('saved:', filename, `(${lines.length} lines)`);
 
   await browser.close();
 })();
