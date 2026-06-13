@@ -9,6 +9,7 @@ on:
   push:
     branches: [ main ]
     paths:
+      - 'data/pricedata/TOPIX (東証株価指数).csv'
       - 'data/pricedata/TOPIX Core30.csv'
       - 'data/pricedata/TOPIX Large70.csv'
       - 'data/pricedata/TOPIX Mid400.csv'
