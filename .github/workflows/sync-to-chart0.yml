@@ -47,8 +47,8 @@ jobs:
           cp -f "data/pricedata/TOPIX (東証株価指数).csv" chart0/data/000.csv
           cp -f "data/pricedata/日経平均株価.csv" chart0/data/001.csv
           cp -f "data/pricedata/日経平均ボラティリティー・インデックス.csv" chart0/data/002.csv
-          cp -f "data/pricedata/ドル円.csv" chart0/data/081.csv
-          cp -f "data/pricedata/ビットコイン.csv" chart0/data/082.csv
+          cp -f "data/pricedata/ドル円.csv" chart0/data/070.csv
+          cp -f "data/pricedata/ビットコイン.csv" chart0/data/075.csv
           cp -f "data/pricedata/TOPIX グロース.csv" chart0/data/003.csv
           cp -f "data/pricedata/TOPIX バリュー.csv" chart0/data/004.csv
           cp -f "data/pricedata/東証REIT指数.csv" chart0/data/005.csv
