@@ -52,6 +52,13 @@ on:
       - 'data/pricedata/BYD(中).csv'
       - 'data/pricedata/SMIC(中).csv'
       - 'data/pricedata/NAURA(中).csv'
+      - 'data/pricedata/香港ハンセン指数.csv'
+      - 'data/pricedata/VIX指数.csv'
+      - 'data/pricedata/韓国総合株価指数.csv'
+      - 'data/pricedata/英FT100指数.csv'
+      - 'data/pricedata/独DAX30指数.csv'
+      - 'data/pricedata/台湾加権.csv'
+      - 'data/pricedata/仏CAC40指数.csv'
       
   workflow_dispatch:
 
@@ -118,7 +125,14 @@ jobs:
           cp -f "data/pricedata/BYD(中).csv" chart0/data/135.csv
           cp -f "data/pricedata/SMIC(中).csv" chart0/data/136.csv
           cp -f "data/pricedata/NAURA(中).csv" chart0/data/137.csv
-
+          cp -f "data/pricedata/香港ハンセン指数.csv" chart0/data/082.csv
+          cp -f "data/pricedata/台湾加権.csv" chart0/data/083.csv
+          cp -f "data/pricedata/韓国総合株価指数.csv" chart0/data/084.csv
+          cp -f "data/pricedata/英FT100指数.csv" chart0/data/085.csv
+          cp -f "data/pricedata/独DAX30指数.csv" chart0/data/086.csv
+          cp -f "data/pricedata/仏CAC40指数.csv" chart0/data/087.csv
+          cp -f "data/pricedata/VIX指数.csv" chart0/data/057.csv
+          
       - name: Commit & push if changed
         run: |
           cd chart0
