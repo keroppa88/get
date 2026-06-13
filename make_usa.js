@@ -161,27 +161,20 @@ function sanitizeFilename(name) {
       continue;
     }
 
-    // 列2=始値, 列3=高値, 列4=安値, 列5=終値, 列6=出来高, 列7=取引日
+    // 列2=始値, 列3=高値, 列4=安値, 列5=終値, 列6=出来高
     const open = row[2];
     const high = row[3];
     const low = row[4];
     const close = row[5];
     const volume = row[6];
-    const tradingDate = row[7]; // "2026/01/29"
 
     if (!close || !open || !high || !low) {
       console.log(`${stock.name}: データ不足 open=${open}, high=${high}, low=${low}, close=${close}`);
       continue;
     }
 
-    // 取引日から日付を取得
-    let dateISO = defaultDateISO;
-    if (tradingDate && /^\d{4}\/\d{2}\/\d{2}/.test(tradingDate)) {
-      const m = tradingDate.match(/^(\d{4})\/(\d{2})\/(\d{2})/);
-      if (m) {
-        dateISO = `${m[1]}-${m[2]}-${m[3]}`;
-      }
-    }
+    // 日付は更新日時（defaultDateISO）に統一する（休日対応）
+    const dateISO = defaultDateISO;
 
     const outPath = path.join(OUT_DIR, stock.file);
     appendIfNotExists(outPath, dateISO, open, high, low, close, volume);
