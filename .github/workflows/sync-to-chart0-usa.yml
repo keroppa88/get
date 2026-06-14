@@ -61,6 +61,16 @@ on:
       - 'data/pricedata/仏CAC40指数.csv'
       - 'data/pricedata/ユーロ50.csv'
       - 'data/pricedata/インドSENSEX.csv'
+      - 'data/pricedata/S&P 500 Consumer Discretionary.csv'
+      - 'data/pricedata/S&P 500 Consumer Staples.csv'
+      - 'data/pricedata/S&P 500 Energy.csv'
+      - 'data/pricedata/S&P 500 Financials.csv'
+      - 'data/pricedata/S&P 500 Health Care.csv'
+      - 'data/pricedata/S&P 500 Industrials.csv'
+      - 'data/pricedata/S&P 500 Information Technology.csv'
+      - 'data/pricedata/S&P 500 Materials.csv'
+      - 'data/pricedata/S&P 500 Telecommunication Services.csv'
+      - 'data/pricedata/S&P 500 Utilities.csv'
       
   workflow_dispatch:
 
@@ -136,6 +146,16 @@ jobs:
           cp -f "data/pricedata/VIX指数.csv" chart0/data/057.csv
           cp -f "data/pricedata/ユーロ50.csv" chart0/data/088.csv
           cp -f "data/pricedata/インドSENSEX.csv" chart0/data/089.csv
+          cp -f "data/pricedata/S&P 500 Consumer Discretionary.csv" chart0/data/057.csv
+          cp -f "data/pricedata/S&P 500 Consumer Staples.csv" chart0/data/058.csv
+          cp -f "data/pricedata/S&P 500 Energy.csv" chart0/data/059.csv
+          cp -f "data/pricedata/S&P 500 Financials.csv" chart0/data/060.csv
+          cp -f "data/pricedata/S&P 500 Health Care.csv" chart0/data/061.csv
+          cp -f "data/pricedata/S&P 500 Industrials.csv" chart0/data/062.csv
+          cp -f "data/pricedata/S&P 500 Information Technology.csv" chart0/data/063.csv
+          cp -f "data/pricedata/S&P 500 Materials.csv" chart0/data/064.csv
+          cp -f "data/pricedata/S&P 500 Telecommunication Services.csv" chart0/data/065.csv
+          cp -f "data/pricedata/S&P 500 Utilities.csv" chart0/data/066.csv
           
       - name: Commit & push if changed
         run: |
