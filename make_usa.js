@@ -133,7 +133,7 @@ function sanitizeFilename(name) {
     { file: 'サムスン(韓).csv', code: 'KRX:005930', name: 'サムスン(韓)' },
     { file: 'テンセント(中).csv', code: 'HKG:0700', name: 'テンセント(中)' },
     { file: 'アリババ(中).csv', code: 'BCBA:BABA', name: 'アリババ(中)' },
-    { file: 'パランディア.csv', code: 'NASDAQ:PLTR', name: 'パランディア' },
+    { file: 'パランティア.csv', code: 'NASDAQ:PLTR', name: 'パランティア' },
     { file: 'SAP(独).csv', code: 'ETR:SAP', name: 'SAP(独)' },
     { file: 'VW(独).csv', code: 'ETR:VOW3', name: 'VW(独)' },
     { file: 'BASF(独).csv', code: 'ETR:BAS', name: 'BASF(独)' },
